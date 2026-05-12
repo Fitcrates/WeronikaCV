@@ -1,6 +1,6 @@
-import Link from "next/link";
 import Image from "next/image";
 import type { Project } from "@/lib/projects";
+import HoverPrefetchLink from "@/components/HoverPrefetchLink";
 
 interface FolderCardProps {
   project: Project;
@@ -8,7 +8,7 @@ interface FolderCardProps {
 
 export default function FolderCard({ project }: FolderCardProps) {
   return (
-    <Link href={`/projekt/${project.slug}`} className="folder-card">
+    <HoverPrefetchLink href={`/projekt/${project.slug}`} className="folder-card">
       <div className="folder-card__thumbnail-wrap">
         <Image
           src={project.thumbnail}
@@ -48,6 +48,6 @@ export default function FolderCard({ project }: FolderCardProps) {
           <path d="M96.4424 32.5087C69.3519 32.5087 63.9337 51.8875 63.9337 63.9337" stroke="currentColor" strokeWidth="6" />
         </svg>
       </span>
-    </Link>
+    </HoverPrefetchLink>
   );
 }

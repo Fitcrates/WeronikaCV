@@ -22,7 +22,7 @@ export default async function AccessPage({
   return (
     <main className="access-page">
       <section className="access-card animate-fade-in">
-        <p className="access-card__eyebrow">Restricted access</p>
+        <p className="access-card__eyebrow">Ograniczony dostęp</p>
         <h1 className="access-card__title">{settings.title}</h1>
         <p className="access-card__text">
           To portfolio jest udostępniane wybranemu gronu. Wpisz hasło, aby zobaczyć zawartość.

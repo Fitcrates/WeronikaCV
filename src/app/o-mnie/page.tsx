@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/site";
 import { draftMode } from "next/headers";
 
@@ -28,6 +29,7 @@ export default async function AboutPage() {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 }

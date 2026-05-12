@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getProjectBySlug, getProjects } from "@/lib/projects";
 import ProjectGallery from "@/components/ProjectGallery";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import HoverPrefetchLink from "@/components/HoverPrefetchLink";
 import { getSiteSettings } from "@/lib/site";
 import { draftMode } from "next/headers";
 
@@ -54,9 +56,9 @@ export default async function ProjectPage({
           {/* Navigation bar */}
           <nav className="project-page__nav">
             <Link href="/#projekty">← Projekty</Link>
-            <Link href={`/projekt/${nextProject.slug}`}>
+            <HoverPrefetchLink href={`/projekt/${nextProject.slug}`}>
               Następny projekt →
-            </Link>
+            </HoverPrefetchLink>
           </nav>
 
           {/* Title */}
@@ -75,7 +77,7 @@ export default async function ProjectPage({
               )}
               {project.actions && (
                 <>
-                  <p className="project-page__meta-label">Działanie</p>
+                  <p className="project-page__meta-label">Działania</p>
                   <p className="project-page__meta-value">{project.actions}</p>
                 </>
               )}
@@ -88,16 +90,25 @@ export default async function ProjectPage({
             </div>
 
             <div>
+              <p className="project-page__meta-label">O marce</p>
               <p className="project-page__meta-value">{project.description}</p>
             </div>
           </div>
 
           {/* Gallery */}
           <div className="animate-fade-in-delay-2">
-            <ProjectGallery rows={project.gallery} />
+            <ProjectGallery key={project.slug} rows={project.gallery} />
           </div>
+          {/* Navigation bar */}
+          <nav className="project-page__nav">
+            <Link href="/#projekty">← Projekty</Link>
+            <HoverPrefetchLink href={`/projekt/${nextProject.slug}`}>
+              Następny projekt →
+            </HoverPrefetchLink>
+          </nav>
         </div>
       </main>
+      <Footer />
     </>
   );
 }

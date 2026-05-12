@@ -11,6 +11,7 @@ const aspectRatioOptions = [
   { title: 'Poziome 5:4', value: '5 / 4' },
   { title: 'Poziome 3:2', value: '3 / 2' },
   { title: 'Pionowe 2:3', value: '2 / 3' },
+  { title: 'Własne', value: 'custom' },
 ];
 
 export const galleryBlockType = defineType({
@@ -49,6 +50,22 @@ export const galleryBlockType = defineType({
       }
     }),
     defineField({
+      name: 'customAspectRatio',
+      title: 'Własny aspect ratio bloku',
+      type: 'string',
+      description: 'Wpisz np. 7 / 5, 21 / 9, 1080 / 1350. Używane, gdy wyżej wybrano "Własne".',
+      hidden: ({ parent }) => parent?.aspectRatio !== 'custom',
+      validation: Rule => Rule.custom((value, context) => {
+        if ((context.parent as { aspectRatio?: string })?.aspectRatio !== 'custom') {
+          return true;
+        }
+
+        return value?.trim()
+          ? true
+          : 'Podaj własne proporcje, np. 7 / 5.';
+      })
+    }),
+    defineField({
       name: 'images',
       title: 'Media',
       type: 'array',
@@ -75,17 +92,36 @@ export const galleryBlockType = defineType({
                 list: aspectRatioOptions,
                 layout: 'dropdown'
               }
+            }),
+            defineField({
+              name: 'customAspectRatio',
+              title: 'Własny aspect ratio',
+              type: 'string',
+              description: 'Wpisz np. 7 / 5, 21 / 9, 1080 / 1350. Nadpisuje proporcje bloku.',
+              hidden: ({ parent }) => parent?.aspectRatio !== 'custom',
+              validation: Rule => Rule.custom((value, context) => {
+                if ((context.parent as { aspectRatio?: string })?.aspectRatio !== 'custom') {
+                  return true;
+                }
+
+                return value?.trim()
+                  ? true
+                  : 'Podaj własne proporcje, np. 7 / 5.';
+              })
             })
           ],
           preview: {
             select: {
               media: 'image',
-              aspectRatio: 'aspectRatio'
+              aspectRatio: 'aspectRatio',
+              customAspectRatio: 'customAspectRatio'
             },
-            prepare({ media, aspectRatio }) {
+            prepare({ media, aspectRatio, customAspectRatio }) {
+              const ratio = aspectRatio === 'custom' ? customAspectRatio : aspectRatio;
+
               return {
                 title: media
-                  ? (aspectRatio && aspectRatio !== 'auto' ? `Zdjęcie ${aspectRatio}` : 'Zdjęcie auto')
+                  ? (ratio && ratio !== 'auto' ? `Zdjęcie ${ratio}` : 'Zdjęcie auto')
                   : 'Pusty slot',
                 media
               }
@@ -121,18 +157,37 @@ export const galleryBlockType = defineType({
                 list: aspectRatioOptions,
                 layout: 'dropdown'
               }
+            }),
+            defineField({
+              name: 'customAspectRatio',
+              title: 'Własny aspect ratio',
+              type: 'string',
+              description: 'Wpisz np. 7 / 5, 21 / 9, 1080 / 1350. Nadpisuje proporcje bloku.',
+              hidden: ({ parent }) => parent?.aspectRatio !== 'custom',
+              validation: Rule => Rule.custom((value, context) => {
+                if ((context.parent as { aspectRatio?: string })?.aspectRatio !== 'custom') {
+                  return true;
+                }
+
+                return value?.trim()
+                  ? true
+                  : 'Podaj własne proporcje, np. 7 / 5.';
+              })
             })
           ],
           preview: {
             select: {
               title: 'video.asset.originalFilename',
               media: 'poster',
-              aspectRatio: 'aspectRatio'
+              aspectRatio: 'aspectRatio',
+              customAspectRatio: 'customAspectRatio'
             },
-            prepare({ title, media, aspectRatio }) {
+            prepare({ title, media, aspectRatio, customAspectRatio }) {
+              const ratio = aspectRatio === 'custom' ? customAspectRatio : aspectRatio;
+
               return {
                 title: title || 'Wideo',
-                subtitle: aspectRatio && aspectRatio !== 'auto' ? aspectRatio : 'auto',
+                subtitle: ratio && ratio !== 'auto' ? ratio : 'auto',
                 media
               }
             }
@@ -158,7 +213,11 @@ export const galleryBlockType = defineType({
             }
           }
         },
-        { type: 'image', options: { hotspot: true } }
+        {
+          type: 'image',
+          title: 'Zdjęcie legacy bez aspect ratio',
+          options: { hotspot: true }
+        }
       ],
       validation: Rule => Rule.required()
     })
@@ -167,12 +226,15 @@ export const galleryBlockType = defineType({
     select: {
       layout: 'layout',
       aspectRatio: 'aspectRatio',
+      customAspectRatio: 'customAspectRatio',
       images: 'images'
     },
-    prepare({ layout, aspectRatio, images }) {
+    prepare({ layout, aspectRatio, customAspectRatio, images }) {
+      const ratio = aspectRatio === 'custom' ? customAspectRatio : aspectRatio;
+
       return {
         title: `Układ: ${layout}`,
-        subtitle: `${images ? images.length : 0} elementów${aspectRatio ? ` • ${aspectRatio}` : ''}`,
+        subtitle: `${images ? images.length : 0} elementów${ratio ? ` • ${ratio}` : ''}`,
         media: images && images.length > 0 ? images[0] : null
       }
     }

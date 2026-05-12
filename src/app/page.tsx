@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ProjectGrid from "@/components/ProjectGrid";
+import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/site";
 import { draftMode } from "next/headers";
 
@@ -24,6 +25,7 @@ export default async function Home() {
         <Hero settings={settings} />
         <ProjectGrid title={settings.projectsTitle} preview={isEnabled} />
       </main>
+      <Footer />
     </>
   );
 }
