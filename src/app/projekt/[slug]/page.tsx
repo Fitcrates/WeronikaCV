@@ -4,6 +4,7 @@ import { getProjectBySlug, getProjects } from "@/lib/projects";
 import ProjectGallery from "@/components/ProjectGallery";
 import Header from "@/components/Header";
 import { getSiteSettings } from "@/lib/site";
+import { draftMode } from "next/headers";
 
 /* Generate static params for all projects */
 export async function generateStaticParams() {
@@ -32,15 +33,16 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
-  const settings = await getSiteSettings();
+  const { isEnabled } = await draftMode();
+  const project = await getProjectBySlug(slug, isEnabled);
+  const settings = await getSiteSettings(isEnabled);
 
   if (!project) {
     notFound();
   }
 
   /* Find next project for navigation */
-  const projectsList = await getProjects();
+  const projectsList = await getProjects(isEnabled);
   const currentIndex = projectsList.findIndex((p) => p.slug === slug);
   const nextProject = projectsList[(currentIndex + 1) % projectsList.length];
 

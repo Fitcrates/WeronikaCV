@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Host_Grotesk } from "next/font/google";
+import { draftMode } from "next/headers";
+import { VisualEditing } from "next-sanity/visual-editing";
 import "./globals.css";
 
 const hostGrotesk = Host_Grotesk({
@@ -14,14 +16,19 @@ export const metadata: Metadata = {
     "Portfolio projektowe Weroniki Grzesiowskiej — grafika, ilustracja, branding.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { isEnabled } = await draftMode();
+
   return (
     <html lang="pl" className={hostGrotesk.className}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {isEnabled && <VisualEditing />}
+      </body>
     </html>
   );
 }

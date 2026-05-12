@@ -1,4 +1,4 @@
-import { client } from "@/sanity/lib/client";
+import { getSanityClient } from "@/sanity/lib/client";
 
 export interface ContactInfo {
   name: string;
@@ -47,9 +47,9 @@ export const hardcodedSiteSettings: SiteSettings = {
   ],
 };
 
-export async function getSiteSettings(): Promise<SiteSettings> {
+export async function getSiteSettings(preview = false): Promise<SiteSettings> {
   try {
-    const data = await client.fetch(`*[_type == "siteSettings"][0]{
+    const data = await getSanityClient(preview).fetch(`*[_type == "siteSettings"][0]{
       title,
       description,
       heroTitleLines,

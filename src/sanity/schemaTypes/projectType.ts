@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity';
+import FolderColorInput from '../components/FolderColorInput';
 
 export const projectType = defineType({
   name: 'project',
@@ -35,7 +36,10 @@ export const projectType = defineType({
       name: 'folderColor',
       title: 'Kolor folderu',
       type: 'string',
-      description: 'Kod HEX koloru (np. #EAD7D7)',
+      description: 'Wybierz kolor z palety albo wpisz własny kod HEX.',
+      components: {
+        input: FolderColorInput,
+      },
       validation: Rule => Rule.required().regex(/^#([0-9A-Fa-f]{3}){1,2}$/, {
         name: 'hex color',
         invert: false,

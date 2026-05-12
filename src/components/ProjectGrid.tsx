@@ -3,10 +3,11 @@ import FolderCard from "./FolderCard";
 
 interface ProjectGridProps {
   title: string;
+  preview?: boolean;
 }
 
-export default async function ProjectGrid({ title }: ProjectGridProps) {
-  const projects = await getProjects();
+export default async function ProjectGrid({ title, preview = false }: ProjectGridProps) {
+  const projects = await getProjects(preview);
 
   return (
     <section id="projekty" className="projects-section">

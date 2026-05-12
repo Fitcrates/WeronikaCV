@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ProjectGrid from "@/components/ProjectGrid";
 import { getSiteSettings } from "@/lib/site";
+import { draftMode } from "next/headers";
 
 export async function generateMetadata() {
   const settings = await getSiteSettings();
@@ -13,14 +14,15 @@ export async function generateMetadata() {
 }
 
 export default async function Home() {
-  const settings = await getSiteSettings();
+  const { isEnabled } = await draftMode();
+  const settings = await getSiteSettings(isEnabled);
 
   return (
     <>
       <Header contact={settings.contact} />
       <main>
         <Hero settings={settings} />
-        <ProjectGrid title={settings.projectsTitle} />
+        <ProjectGrid title={settings.projectsTitle} preview={isEnabled} />
       </main>
     </>
   );

@@ -1,4 +1,4 @@
-import { client } from "@/sanity/lib/client";
+import { getSanityClient } from "@/sanity/lib/client";
 import { urlForImage } from "@/sanity/lib/image";
 import type { Image } from "sanity";
 
@@ -184,9 +184,9 @@ function mapSanityProject(p: SanityProject): Project | undefined {
   };
 }
 
-export async function getProjects(): Promise<Project[]> {
+export async function getProjects(preview = false): Promise<Project[]> {
   try {
-    const sanityProjects = await client.fetch<SanityProject[]>(`*[_type == "project"] | order(order asc, _createdAt desc){
+    const sanityProjects = await getSanityClient(preview).fetch<SanityProject[]>(`*[_type == "project"] | order(order asc, _createdAt desc){
       ...,
       gallery[]{
         layout,
@@ -218,9 +218,9 @@ export async function getProjects(): Promise<Project[]> {
   return hardcodedProjects;
 }
 
-export async function getProjectBySlug(slug: string): Promise<Project | undefined> {
+export async function getProjectBySlug(slug: string, preview = false): Promise<Project | undefined> {
   try {
-    const p = await client.fetch<SanityProject | null>(`*[_type == "project" && slug.current == $slug][0]{
+    const p = await getSanityClient(preview).fetch<SanityProject | null>(`*[_type == "project" && slug.current == $slug][0]{
       ...,
       gallery[]{
         layout,

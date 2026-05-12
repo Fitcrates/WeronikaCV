@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import { getSiteSettings } from "@/lib/site";
+import { draftMode } from "next/headers";
 
 export async function generateMetadata() {
   const settings = await getSiteSettings();
@@ -11,7 +12,8 @@ export async function generateMetadata() {
 }
 
 export default async function CvPage() {
-  const settings = await getSiteSettings();
+  const { isEnabled } = await draftMode();
+  const settings = await getSiteSettings(isEnabled);
 
   return (
     <>
