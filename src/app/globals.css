@@ -111,7 +111,7 @@ a {
 
 .hero__title {
   width: min(100%, 720px);
-  font-size: clamp(58px, 6.45vw, 102px);
+  font-size: clamp(48px, 3.45vw, 98px);
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: -0.03em;
@@ -161,7 +161,7 @@ a {
   }
   
   .hero__title {
-    font-size: 40px;
+    font-size: 38px;
   }
 }
 
