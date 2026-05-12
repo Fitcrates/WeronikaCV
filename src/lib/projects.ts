@@ -80,6 +80,7 @@ interface SanityGalleryEmptySlot {
 
 interface SanityGalleryBlock {
   layout?: GalleryLayout;
+  aspectRatio?: GalleryAspectRatio;
   images?: (SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0)[];
 }
 
@@ -237,7 +238,8 @@ function getGalleryImageSource(
 }
 
 function mapGalleryImage(
-  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0
+  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0,
+  blockAspectRatio?: GalleryAspectRatio
 ): GalleryImageSlot {
   const { image, aspectRatio } = getGalleryImageSource(item);
   const src = getSanityImageUrl(image);
@@ -251,7 +253,12 @@ function mapGalleryImage(
   return {
     src,
     orientation: getImageOrientation(image),
-    aspectRatio: aspectRatio === "auto" ? undefined : aspectRatio,
+    aspectRatio:
+      aspectRatio && aspectRatio !== "auto"
+        ? aspectRatio
+        : blockAspectRatio && blockAspectRatio !== "auto"
+          ? blockAspectRatio
+          : undefined,
     width: dimensions?.width,
     height: dimensions?.height,
   };
@@ -277,7 +284,7 @@ function mapSanityProject(p: SanityProject): Project | undefined {
       ? p.gallery.map((g) => ({
           layout: g.layout || "full",
           images: g.images
-            ? g.images.map(mapGalleryImage)
+            ? g.images.map((image) => mapGalleryImage(image, g.aspectRatio))
             : []
         })).filter((g) => g.images.some(Boolean))
       : []
@@ -290,6 +297,7 @@ export async function getProjects(preview = false): Promise<Project[]> {
       ...,
       gallery[]{
         layout,
+        aspectRatio,
         images[]{
           ...,
           image{
@@ -334,6 +342,7 @@ export async function getProjectBySlug(slug: string, preview = false): Promise<P
       ...,
       gallery[]{
         layout,
+        aspectRatio,
         images[]{
           ...,
           image{

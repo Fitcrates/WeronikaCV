@@ -25,6 +25,28 @@ export const galleryBlockType = defineType({
       validation: Rule => Rule.required()
     }),
     defineField({
+      name: 'aspectRatio',
+      title: 'Aspect ratio zdjęć w bloku',
+      type: 'string',
+      description: 'Stosowane do wszystkich zdjęć w tym bloku. Pojedyncze zdjęcie z własnym aspect ratio nadpisuje tę wartość.',
+      initialValue: '4 / 3',
+      options: {
+        list: [
+          { title: 'Auto / oryginalne', value: 'auto' },
+          { title: 'Kwadrat 1:1', value: '1 / 1' },
+          { title: 'Poziome 4:3', value: '4 / 3' },
+          { title: 'Pionowe 3:4', value: '3 / 4' },
+          { title: 'Szerokie 16:9', value: '16 / 9' },
+          { title: 'Pionowe 9:16', value: '9 / 16' },
+          { title: 'Portret 4:5', value: '4 / 5' },
+          { title: 'Poziome 5:4', value: '5 / 4' },
+          { title: 'Poziome 3:2', value: '3 / 2' },
+          { title: 'Pionowe 2:3', value: '2 / 3' },
+        ],
+        layout: 'dropdown'
+      }
+    }),
+    defineField({
       name: 'images',
       title: 'Zdjęcia',
       type: 'array',
@@ -107,12 +129,13 @@ export const galleryBlockType = defineType({
   preview: {
     select: {
       layout: 'layout',
+      aspectRatio: 'aspectRatio',
       images: 'images'
     },
-    prepare({ layout, images }) {
+    prepare({ layout, aspectRatio, images }) {
       return {
         title: `Układ: ${layout}`,
-        subtitle: `${images ? images.length : 0} zdjęć`,
+        subtitle: `${images ? images.length : 0} zdjęć${aspectRatio ? ` • ${aspectRatio}` : ''}`,
         media: images && images.length > 0 ? images[0] : null
       }
     }

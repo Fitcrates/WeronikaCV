@@ -518,7 +518,7 @@ a {
 .gallery-row--three-col .gallery__item {
   width: 100%;
   height: 100%;
-  aspect-ratio: var(--gallery-image-aspect-ratio, 1 / 1);
+  aspect-ratio: var(--gallery-image-aspect-ratio, 4 / 3);
 }
 
 /* Layout: hero-two — large hero top, two smaller bottom */
