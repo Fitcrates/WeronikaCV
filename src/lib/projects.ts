@@ -30,6 +30,7 @@ export type GalleryAspectRatio =
   | "2 / 3";
 
 export interface GalleryImage {
+  kind?: "image";
   src: string;
   orientation: GalleryImageOrientation;
   aspectRatio?: GalleryAspectRatio;
@@ -37,11 +38,20 @@ export interface GalleryImage {
   height?: number;
 }
 
-export type GalleryImageSlot = GalleryImage | null;
+export interface GalleryVideo {
+  kind: "video";
+  src: string;
+  poster?: string;
+  aspectRatio?: GalleryAspectRatio;
+  mimeType?: string;
+}
+
+export type GalleryMediaSlot = GalleryImage | GalleryVideo | null;
+export type GalleryImageSlot = GalleryMediaSlot;
 
 export interface GalleryRow {
   layout: GalleryLayout;
-  images: GalleryImageSlot[];
+  images: GalleryMediaSlot[];
 }
 
 export interface Project {
@@ -78,10 +88,31 @@ interface SanityGalleryEmptySlot {
   _type?: "galleryEmptySlot";
 }
 
+interface SanityGalleryVideo {
+  _type?: "galleryVideo";
+  video?: {
+    asset?: {
+      _ref?: string;
+      _id?: string;
+      url?: string;
+      mimeType?: string;
+    };
+  };
+  poster?: SanityGalleryImage;
+  aspectRatio?: GalleryAspectRatio;
+}
+
 interface SanityGalleryBlock {
   layout?: GalleryLayout;
   aspectRatio?: GalleryAspectRatio;
-  images?: (SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0)[];
+  images?: (
+    | SanityGalleryImage
+    | SanityGalleryImageWithRatio
+    | SanityGalleryVideo
+    | SanityGalleryEmptySlot
+    | null
+    | 0
+  )[];
 }
 
 interface SanityProject {
@@ -204,26 +235,52 @@ function getSanityImageUrl(image?: SanityGalleryImage | Image): string {
   return urlForImage(image).url();
 }
 
+function getSanityFileUrl(file?: SanityGalleryVideo["video"]): string {
+  const asset = file?.asset;
+
+  if (!asset?._ref && !asset?._id && !asset?.url) {
+    return "";
+  }
+
+  return asset.url || "";
+}
+
 function isGalleryImageWithRatio(
-  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot
+  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryVideo | SanityGalleryEmptySlot
 ): item is SanityGalleryImageWithRatio {
   return "_type" in item && item._type === "galleryImage";
 }
 
+function isGalleryVideo(
+  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryVideo | SanityGalleryEmptySlot
+): item is SanityGalleryVideo {
+  return "_type" in item && item._type === "galleryVideo";
+}
+
 function isGalleryEmptySlot(
-  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot
+  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryVideo | SanityGalleryEmptySlot
 ): item is SanityGalleryEmptySlot {
   return "_type" in item && item._type === "galleryEmptySlot";
 }
 
 function getGalleryImageSource(
-  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0
+  item:
+    | SanityGalleryImage
+    | SanityGalleryImageWithRatio
+    | SanityGalleryVideo
+    | SanityGalleryEmptySlot
+    | null
+    | 0
 ): { image?: SanityGalleryImage; aspectRatio?: GalleryAspectRatio } {
   if (!item) {
     return {};
   }
 
   if (isGalleryEmptySlot(item)) {
+    return {};
+  }
+
+  if (isGalleryVideo(item)) {
     return {};
   }
 
@@ -238,9 +295,36 @@ function getGalleryImageSource(
 }
 
 function mapGalleryImage(
-  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0,
+  item:
+    | SanityGalleryImage
+    | SanityGalleryImageWithRatio
+    | SanityGalleryVideo
+    | SanityGalleryEmptySlot
+    | null
+    | 0,
   blockAspectRatio?: GalleryAspectRatio
-): GalleryImageSlot {
+): GalleryMediaSlot {
+  if (item && isGalleryVideo(item)) {
+    const src = getSanityFileUrl(item.video);
+
+    if (!src) {
+      return null;
+    }
+
+    return {
+      kind: "video",
+      src,
+      poster: getSanityImageUrl(item.poster) || undefined,
+      mimeType: item.video?.asset?.mimeType,
+      aspectRatio:
+        item.aspectRatio && item.aspectRatio !== "auto"
+          ? item.aspectRatio
+          : blockAspectRatio && blockAspectRatio !== "auto"
+            ? blockAspectRatio
+            : undefined,
+    };
+  }
+
   const { image, aspectRatio } = getGalleryImageSource(item);
   const src = getSanityImageUrl(image);
 
@@ -251,6 +335,7 @@ function mapGalleryImage(
   const dimensions = image.asset?.metadata?.dimensions;
 
   return {
+    kind: "image",
     src,
     orientation: getImageOrientation(image),
     aspectRatio:
@@ -310,6 +395,23 @@ export async function getProjects(preview = false): Promise<Project[]> {
               }
             }
           },
+          video{
+            asset->{
+              _id,
+              url,
+              mimeType
+            }
+          },
+          poster{
+            ...,
+            asset->{
+              _id,
+              url,
+              metadata {
+                dimensions
+              }
+            }
+          },
           asset->{
             _id,
             url,
@@ -346,6 +448,23 @@ export async function getProjectBySlug(slug: string, preview = false): Promise<P
         images[]{
           ...,
           image{
+            ...,
+            asset->{
+              _id,
+              url,
+              metadata {
+                dimensions
+              }
+            }
+          },
+          video{
+            asset->{
+              _id,
+              url,
+              mimeType
+            }
+          },
+          poster{
             ...,
             asset->{
               _id,

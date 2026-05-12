@@ -2,12 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Project } from "@/lib/projects";
 
-/* ============================================
-   FolderCard — Uses the exact Union.svg shape
-   as the folder. Thumbnail sits BEHIND the
-   folder (lower z-index) and slides up on hover.
-   ============================================ */
-
 interface FolderCardProps {
   project: Project;
 }
@@ -15,7 +9,6 @@ interface FolderCardProps {
 export default function FolderCard({ project }: FolderCardProps) {
   return (
     <Link href={`/projekt/${project.slug}`} className="folder-card">
-      {/* Thumbnail BEHIND the folder — lower z-index, peeks from top */}
       <div className="folder-card__thumbnail-wrap">
         <Image
           src={project.thumbnail}
@@ -26,7 +19,6 @@ export default function FolderCard({ project }: FolderCardProps) {
         />
       </div>
 
-      {/* Folder shape — uses Union.svg rendered inline as SVG */}
       <div className="folder-card__shape">
         <svg
           viewBox="0 0 640 533"
@@ -43,9 +35,19 @@ export default function FolderCard({ project }: FolderCardProps) {
         </svg>
       </div>
 
-      {/* Name + Arrow — on top of folder */}
       <span className="folder-card__name">{project.title}</span>
-      <span className="folder-card__arrow">→</span>
+      <span className="folder-card__arrow" aria-hidden="true">
+        <svg
+          viewBox="0 0 97 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="folder-card__arrow-icon"
+        >
+          <rect x="0.00012207" y="29.2578" width="96.4423" height="6.50173" fill="currentColor" />
+          <path d="M63.9337 0C63.9337 27.0905 83.3126 32.5086 95.3587 32.5086" stroke="currentColor" strokeWidth="6" />
+          <path d="M96.4424 32.5087C69.3519 32.5087 63.9337 51.8875 63.9337 63.9337" stroke="currentColor" strokeWidth="6" />
+        </svg>
+      </span>
     </Link>
   );
 }

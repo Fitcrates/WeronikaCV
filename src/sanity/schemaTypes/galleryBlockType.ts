@@ -1,5 +1,18 @@
 import { defineType, defineField } from 'sanity';
 
+const aspectRatioOptions = [
+  { title: 'Auto / oryginalne', value: 'auto' },
+  { title: 'Kwadrat 1:1', value: '1 / 1' },
+  { title: 'Poziome 4:3', value: '4 / 3' },
+  { title: 'Pionowe 3:4', value: '3 / 4' },
+  { title: 'Szerokie 16:9', value: '16 / 9' },
+  { title: 'Pionowe 9:16', value: '9 / 16' },
+  { title: 'Portret 4:5', value: '4 / 5' },
+  { title: 'Poziome 5:4', value: '5 / 4' },
+  { title: 'Poziome 3:2', value: '3 / 2' },
+  { title: 'Pionowe 2:3', value: '2 / 3' },
+];
+
 export const galleryBlockType = defineType({
   name: 'galleryBlock',
   title: 'Blok Galerii',
@@ -26,31 +39,20 @@ export const galleryBlockType = defineType({
     }),
     defineField({
       name: 'aspectRatio',
-      title: 'Aspect ratio zdjęć w bloku',
+      title: 'Aspect ratio mediów w bloku',
       type: 'string',
-      description: 'Stosowane do wszystkich zdjęć w tym bloku. Pojedyncze zdjęcie z własnym aspect ratio nadpisuje tę wartość.',
+      description: 'Stosowane do wszystkich zdjęć i wideo w tym bloku. Pojedynczy element z własnym aspect ratio nadpisuje tę wartość.',
       initialValue: '4 / 3',
       options: {
-        list: [
-          { title: 'Auto / oryginalne', value: 'auto' },
-          { title: 'Kwadrat 1:1', value: '1 / 1' },
-          { title: 'Poziome 4:3', value: '4 / 3' },
-          { title: 'Pionowe 3:4', value: '3 / 4' },
-          { title: 'Szerokie 16:9', value: '16 / 9' },
-          { title: 'Pionowe 9:16', value: '9 / 16' },
-          { title: 'Portret 4:5', value: '4 / 5' },
-          { title: 'Poziome 5:4', value: '5 / 4' },
-          { title: 'Poziome 3:2', value: '3 / 2' },
-          { title: 'Pionowe 2:3', value: '2 / 3' },
-        ],
+        list: aspectRatioOptions,
         layout: 'dropdown'
       }
     }),
     defineField({
       name: 'images',
-      title: 'Zdjęcia',
+      title: 'Media',
       type: 'array',
-      description: 'Dodawaj zdjęcia z proporcjami albo pusty slot. Pozycje w tablicy są zachowywane w renderze.',
+      description: 'Dodawaj zdjęcia, wideo albo pusty slot. Pozycje w tablicy są zachowywane w renderze.',
       of: [
         {
           type: 'object',
@@ -70,18 +72,7 @@ export const galleryBlockType = defineType({
               type: 'string',
               initialValue: 'auto',
               options: {
-                list: [
-                  { title: 'Auto / oryginalne', value: 'auto' },
-                  { title: 'Kwadrat 1:1', value: '1 / 1' },
-                  { title: 'Poziome 4:3', value: '4 / 3' },
-                  { title: 'Pionowe 3:4', value: '3 / 4' },
-                  { title: 'Szerokie 16:9', value: '16 / 9' },
-                  { title: 'Pionowe 9:16', value: '9 / 16' },
-                  { title: 'Portret 4:5', value: '4 / 5' },
-                  { title: 'Poziome 5:4', value: '5 / 4' },
-                  { title: 'Poziome 3:2', value: '3 / 2' },
-                  { title: 'Pionowe 2:3', value: '2 / 3' },
-                ],
+                list: aspectRatioOptions,
                 layout: 'dropdown'
               }
             })
@@ -96,6 +87,52 @@ export const galleryBlockType = defineType({
                 title: media
                   ? (aspectRatio && aspectRatio !== 'auto' ? `Zdjęcie ${aspectRatio}` : 'Zdjęcie auto')
                   : 'Pusty slot',
+                media
+              }
+            }
+          }
+        },
+        {
+          type: 'object',
+          name: 'galleryVideo',
+          title: 'Wideo',
+          fields: [
+            defineField({
+              name: 'video',
+              title: 'Plik wideo',
+              type: 'file',
+              options: {
+                accept: 'video/*'
+              },
+              validation: Rule => Rule.required()
+            }),
+            defineField({
+              name: 'poster',
+              title: 'Poster / miniatura wideo',
+              type: 'image',
+              options: { hotspot: true }
+            }),
+            defineField({
+              name: 'aspectRatio',
+              title: 'Aspect ratio',
+              type: 'string',
+              initialValue: 'auto',
+              options: {
+                list: aspectRatioOptions,
+                layout: 'dropdown'
+              }
+            })
+          ],
+          preview: {
+            select: {
+              title: 'video.asset.originalFilename',
+              media: 'poster',
+              aspectRatio: 'aspectRatio'
+            },
+            prepare({ title, media, aspectRatio }) {
+              return {
+                title: title || 'Wideo',
+                subtitle: aspectRatio && aspectRatio !== 'auto' ? aspectRatio : 'auto',
                 media
               }
             }
@@ -135,7 +172,7 @@ export const galleryBlockType = defineType({
     prepare({ layout, aspectRatio, images }) {
       return {
         title: `Układ: ${layout}`,
-        subtitle: `${images ? images.length : 0} zdjęć${aspectRatio ? ` • ${aspectRatio}` : ''}`,
+        subtitle: `${images ? images.length : 0} elementów${aspectRatio ? ` • ${aspectRatio}` : ''}`,
         media: images && images.length > 0 ? images[0] : null
       }
     }

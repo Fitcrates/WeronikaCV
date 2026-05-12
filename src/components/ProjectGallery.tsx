@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
-import type { GalleryImage, GalleryImageSlot, GalleryRow } from "@/lib/projects";
+import type { GalleryMediaSlot, GalleryRow } from "@/lib/projects";
 
 interface ProjectGalleryProps {
   rows: GalleryRow[];
@@ -8,7 +8,7 @@ interface ProjectGalleryProps {
 
 interface RenderableGalleryRow {
   className: string;
-  images: GalleryImageSlot[];
+  images: GalleryMediaSlot[];
 }
 
 function getRenderableRows(rows: GalleryRow[]): RenderableGalleryRow[] {
@@ -18,14 +18,16 @@ function getRenderableRows(rows: GalleryRow[]): RenderableGalleryRow[] {
   }));
 }
 
-function getImageFrameStyle(image: GalleryImage): CSSProperties {
+function getMediaFrameStyle(media: NonNullable<GalleryMediaSlot>): CSSProperties {
   const naturalAspectRatio =
-    image.width && image.height ? `${image.width} / ${image.height}` : "3 / 2";
+    "width" in media && media.width && media.height
+      ? `${media.width} / ${media.height}`
+      : "3 / 2";
 
   return {
     "--gallery-natural-aspect-ratio": naturalAspectRatio,
-    ...(image.aspectRatio
-      ? { "--gallery-image-aspect-ratio": image.aspectRatio }
+    ...(media.aspectRatio
+      ? { "--gallery-image-aspect-ratio": media.aspectRatio }
       : {}),
   } as CSSProperties;
 }
@@ -37,15 +39,25 @@ export default function ProjectGallery({ rows }: ProjectGalleryProps) {
     <div className="gallery">
       {renderableRows.map((row, rowIdx) => (
         <div key={rowIdx} className={row.className}>
-          {row.images.map((image, imgIdx) => (
+          {row.images.map((media, imgIdx) => (
             <figure
               key={`${rowIdx}-${imgIdx}`}
-              className={`gallery__item${image ? "" : " gallery__item--empty"}`}
-              style={image ? getImageFrameStyle(image) : undefined}
+              className={`gallery__item${media ? "" : " gallery__item--empty"}`}
+              style={media ? getMediaFrameStyle(media) : undefined}
             >
-              {image ? (
+              {media?.kind === "video" ? (
+                <video
+                  className="gallery__video"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  poster={media.poster}
+                >
+                  <source src={media.src} type={media.mimeType || "video/mp4"} />
+                </video>
+              ) : media ? (
                 <Image
-                  src={image.src}
+                  src={media.src}
                   alt={`Galeria zdjęcie ${rowIdx + 1}-${imgIdx + 1}`}
                   fill
                   className="gallery__image"
