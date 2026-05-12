@@ -13,18 +13,35 @@ export type GalleryLayout =
   | "two-one"
   | "three-col"
   | "hero-two"
+  | "portrait-stack"
   | "grid";
 
 export type GalleryImageOrientation = "landscape" | "portrait" | "square";
+export type GalleryAspectRatio =
+  | "auto"
+  | "1 / 1"
+  | "4 / 3"
+  | "3 / 4"
+  | "16 / 9"
+  | "9 / 16"
+  | "4 / 5"
+  | "5 / 4"
+  | "3 / 2"
+  | "2 / 3";
 
 export interface GalleryImage {
   src: string;
   orientation: GalleryImageOrientation;
+  aspectRatio?: GalleryAspectRatio;
+  width?: number;
+  height?: number;
 }
+
+export type GalleryImageSlot = GalleryImage | null;
 
 export interface GalleryRow {
   layout: GalleryLayout;
-  images: GalleryImage[];
+  images: GalleryImageSlot[];
 }
 
 export interface Project {
@@ -51,9 +68,19 @@ interface SanityGalleryImage extends Image {
   };
 }
 
+interface SanityGalleryImageWithRatio {
+  _type?: "galleryImage";
+  image?: SanityGalleryImage;
+  aspectRatio?: GalleryAspectRatio;
+}
+
+interface SanityGalleryEmptySlot {
+  _type?: "galleryEmptySlot";
+}
+
 interface SanityGalleryBlock {
   layout?: GalleryLayout;
-  images?: SanityGalleryImage[];
+  images?: (SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0)[];
 }
 
 interface SanityProject {
@@ -154,6 +181,82 @@ function getImageOrientation(image: SanityGalleryImage): GalleryImageOrientation
   return "square";
 }
 
+function hasValidImageAsset(image?: SanityGalleryImage | Image): image is SanityGalleryImage {
+  if (!image?.asset) {
+    return false;
+  }
+
+  const asset = image.asset as Image["asset"] & {
+    _id?: string;
+    _ref?: string;
+    url?: string;
+  };
+
+  return Boolean(asset._ref || asset._id || asset.url);
+}
+
+function getSanityImageUrl(image?: SanityGalleryImage | Image): string {
+  if (!hasValidImageAsset(image)) {
+    return "";
+  }
+
+  return urlForImage(image).url();
+}
+
+function isGalleryImageWithRatio(
+  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot
+): item is SanityGalleryImageWithRatio {
+  return "_type" in item && item._type === "galleryImage";
+}
+
+function isGalleryEmptySlot(
+  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot
+): item is SanityGalleryEmptySlot {
+  return "_type" in item && item._type === "galleryEmptySlot";
+}
+
+function getGalleryImageSource(
+  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0
+): { image?: SanityGalleryImage; aspectRatio?: GalleryAspectRatio } {
+  if (!item) {
+    return {};
+  }
+
+  if (isGalleryEmptySlot(item)) {
+    return {};
+  }
+
+  if (isGalleryImageWithRatio(item)) {
+    return {
+      image: item.image,
+      aspectRatio: item.aspectRatio,
+    };
+  }
+
+  return { image: item };
+}
+
+function mapGalleryImage(
+  item: SanityGalleryImage | SanityGalleryImageWithRatio | SanityGalleryEmptySlot | null | 0
+): GalleryImageSlot {
+  const { image, aspectRatio } = getGalleryImageSource(item);
+  const src = getSanityImageUrl(image);
+
+  if (!src || !image) {
+    return null;
+  }
+
+  const dimensions = image.asset?.metadata?.dimensions;
+
+  return {
+    src,
+    orientation: getImageOrientation(image),
+    aspectRatio: aspectRatio === "auto" ? undefined : aspectRatio,
+    width: dimensions?.width,
+    height: dimensions?.height,
+  };
+}
+
 function mapSanityProject(p: SanityProject): Project | undefined {
   const slug = p.slug?.current;
 
@@ -166,7 +269,7 @@ function mapSanityProject(p: SanityProject): Project | undefined {
     title: p.title,
     year: p.year || "",
     folderColor: p.folderColor || "#dddddd",
-    thumbnail: p.thumbnail ? urlForImage(p.thumbnail).url() : "",
+    thumbnail: getSanityImageUrl(p.thumbnail),
     description: p.description || "",
     scope: p.scope || "",
     actions: p.actions || "",
@@ -174,12 +277,9 @@ function mapSanityProject(p: SanityProject): Project | undefined {
       ? p.gallery.map((g) => ({
           layout: g.layout || "full",
           images: g.images
-            ? g.images.map((img) => ({
-                src: urlForImage(img).url(),
-                orientation: getImageOrientation(img),
-              }))
+            ? g.images.map(mapGalleryImage)
             : []
-        })).filter((g) => g.images.length > 0)
+        })).filter((g) => g.images.some(Boolean))
       : []
   };
 }
@@ -192,6 +292,16 @@ export async function getProjects(preview = false): Promise<Project[]> {
         layout,
         images[]{
           ...,
+          image{
+            ...,
+            asset->{
+              _id,
+              url,
+              metadata {
+                dimensions
+              }
+            }
+          },
           asset->{
             _id,
             url,
@@ -226,6 +336,16 @@ export async function getProjectBySlug(slug: string, preview = false): Promise<P
         layout,
         images[]{
           ...,
+          image{
+            ...,
+            asset->{
+              _id,
+              url,
+              metadata {
+                dimensions
+              }
+            }
+          },
           asset->{
             _id,
             url,

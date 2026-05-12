@@ -1,5 +1,6 @@
 import Image from "next/image";
-import type { GalleryImage, GalleryRow } from "@/lib/projects";
+import type { CSSProperties } from "react";
+import type { GalleryImage, GalleryImageSlot, GalleryRow } from "@/lib/projects";
 
 interface ProjectGalleryProps {
   rows: GalleryRow[];
@@ -7,32 +8,26 @@ interface ProjectGalleryProps {
 
 interface RenderableGalleryRow {
   className: string;
-  images: GalleryImage[];
+  images: GalleryImageSlot[];
 }
 
 function getRenderableRows(rows: GalleryRow[]): RenderableGalleryRow[] {
-  return rows.flatMap((row) => {
-    const portraitIndex = row.images.findIndex((image) => image.orientation === "portrait");
+  return rows.map((row) => ({
+    className: `gallery-row--${row.layout}`,
+    images: row.images,
+  }));
+}
 
-    if (portraitIndex >= 0) {
-      if (row.images.length < 3) {
-        return [];
-      }
+function getImageFrameStyle(image: GalleryImage): CSSProperties {
+  const naturalAspectRatio =
+    image.width && image.height ? `${image.width} / ${image.height}` : "3 / 2";
 
-      const portraitImage = row.images[portraitIndex];
-      const supportingImages = row.images.filter((_, index) => index !== portraitIndex).slice(0, 2);
-
-      return [{
-        className: "gallery-row--portrait-stack",
-        images: [portraitImage, ...supportingImages],
-      }];
-    }
-
-    return [{
-      className: `gallery-row--${row.layout}`,
-      images: row.images,
-    }];
-  });
+  return {
+    "--gallery-natural-aspect-ratio": naturalAspectRatio,
+    ...(image.aspectRatio
+      ? { "--gallery-image-aspect-ratio": image.aspectRatio }
+      : {}),
+  } as CSSProperties;
 }
 
 export default function ProjectGallery({ rows }: ProjectGalleryProps) {
@@ -43,14 +38,21 @@ export default function ProjectGallery({ rows }: ProjectGalleryProps) {
       {renderableRows.map((row, rowIdx) => (
         <div key={rowIdx} className={row.className}>
           {row.images.map((image, imgIdx) => (
-            <Image
+            <figure
               key={`${rowIdx}-${imgIdx}`}
-              src={image.src}
-              alt={`Galeria zdjęcie ${rowIdx + 1}-${imgIdx + 1}`}
-              width={1200}
-              height={800}
-              style={{ width: "100%", height: "100%" }}
-            />
+              className={`gallery__item${image ? "" : " gallery__item--empty"}`}
+              style={image ? getImageFrameStyle(image) : undefined}
+            >
+              {image ? (
+                <Image
+                  src={image.src}
+                  alt={`Galeria zdjęcie ${rowIdx + 1}-${imgIdx + 1}`}
+                  fill
+                  className="gallery__image"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 1200px"
+                />
+              ) : null}
+            </figure>
           ))}
         </div>
       ))}

@@ -4,14 +4,21 @@ import { useRef, useEffect } from "react";
 import Image from "next/image";
 
 const facesConfig = [
-  { id: 1, left: "5%", top: "10%", width: 90, rotate: -10 },
-  { id: 2, left: "25%", top: "5%", width: 100, rotate: 5 },
-  { id: 3, left: "55%", top: "8%", width: 180, rotate: 12 },
-  { id: 4, left: "22%", top: "35%", width: 120, rotate: -5 },
-  { id: 5, left: "50%", top: "32%", width: 105, rotate: -15 },
-  { id: 6, left: "0%", top: "55%", width: 115, rotate: -18 },
-  { id: 7, left: "28%", top: "68%", width: 95, rotate: 8 },
-  { id: 8, left: "55%", top: "58%", width: 140, rotate: -8 },
+  // 3 średnie tej samej wielkości — lewa kolumna i górny lewy róg
+  { id: 1, left: "25%",  top: "12%",  width: 105, rotate: -8  },
+  { id: 2, left: "6%",  top: "33%", width: 105, rotate: 5   },
+  { id: 3, left: "10%",  top: "78%", width: 105, rotate: -5  },
+
+  // Druga co do wielkości — środek
+  { id: 4, left: "38%", top: "38%",  width: 152, rotate: 8   },
+
+  // Największa — prawa strona
+  { id: 5, left: "65%", top: "20%",  width: 188, rotate: -6  },
+
+  // Mniejsze pod środkową i największą
+  { id: 6, left: "30%", top: "66%", width: 82,  rotate: 10  },
+  { id: 7, left: "55%", top: "78%", width: 62,  rotate: -12 },
+  { id: 8, left: "78%", top: "77%", width: 92,  rotate: 6   },
 ];
 
 export default function FloatingFaces() {
