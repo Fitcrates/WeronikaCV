@@ -23,10 +23,24 @@ function isPublicPath(pathname: string) {
 
 function isSanityPresentationPreview(request: NextRequest) {
   const { searchParams } = request.nextUrl;
+  const referer = request.headers.get("referer");
+  let refererUrl: URL | null = null;
+
+  if (referer) {
+    try {
+      refererUrl = new URL(referer);
+    } catch {
+      refererUrl = null;
+    }
+  }
 
   return (
     searchParams.has("sanity-preview-perspective") ||
     searchParams.has("sanity-preview-secret") ||
+    Boolean(
+      refererUrl?.searchParams.has("sanity-preview-perspective") ||
+        refererUrl?.searchParams.has("sanity-preview-secret")
+    ) ||
     request.cookies.has("sanity-preview-perspective")
   );
 }

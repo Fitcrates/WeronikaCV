@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProjectBySlug, getProjects } from "@/lib/projects";
 import ProjectGallery from "@/components/ProjectGallery";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HoverPrefetchLink from "@/components/HoverPrefetchLink";
+import PreviewAwareLink from "@/components/PreviewAwareLink";
 import { getSiteSettings } from "@/lib/site";
 import { isSanityPreviewRequest } from "@/sanity/preview";
 
@@ -55,7 +55,7 @@ export default async function ProjectPage({
         <div className="container">
           {/* Navigation bar */}
           <nav className="project-page__nav">
-            <Link href="/#projekty">← Projekty</Link>
+            <PreviewAwareLink href="/#projekty">← Projekty</PreviewAwareLink>
             <HoverPrefetchLink href={`/projekt/${nextProject.slug}`}>
               Następny projekt →
             </HoverPrefetchLink>
@@ -101,7 +101,7 @@ export default async function ProjectPage({
           </div>
           {/* Navigation bar */}
           <nav className="project-page__nav">
-            <Link href="/#projekty">← Projekty</Link>
+            <PreviewAwareLink href="/#projekty">← Projekty</PreviewAwareLink>
             <HoverPrefetchLink href={`/projekt/${nextProject.slug}`}>
               Następny projekt →
             </HoverPrefetchLink>

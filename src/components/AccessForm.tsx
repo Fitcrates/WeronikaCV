@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { useLanguage } from "./LanguageProvider";
 
 interface AccessFormProps {
   redirectTo: string;
@@ -9,6 +10,7 @@ interface AccessFormProps {
 
 export default function AccessForm({ redirectTo }: AccessFormProps) {
   const router = useRouter();
+  const { language, isTranslating, toggleLanguage } = useLanguage();
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [error, setError] = useState("");
@@ -22,26 +24,50 @@ export default function AccessForm({ redirectTo }: AccessFormProps) {
     const formData = new FormData();
     formData.set("password", password);
     formData.set("redirectTo", redirectTo);
+    formData.set("language", language);
 
-    const response = await fetch("/api/access", {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const response = await fetch("/api/access", {
+        method: "POST",
+        body: formData,
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!response.ok || !result.ok) {
-      setError(result.message || "Nie udało się odblokować strony.");
+      if (!response.ok || !result.ok) {
+        setError(result.message || "Nie udało się odblokować strony.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      router.replace(result.redirectTo || "/");
+      router.refresh();
+    } catch {
+      setError("Nie udało się odblokować strony.");
       setIsSubmitting(false);
-      return;
     }
-
-    router.replace(result.redirectTo || "/");
-    router.refresh();
   }
 
   return (
     <form className="access-form" onSubmit={handleSubmit}>
+      <div className="access-form__toolbar" data-translate-ignore>
+        <button
+          type="button"
+          className="header__language access-form__language"
+          aria-label={language === "en" ? "Switch to Polish" : "Switch to English"}
+          aria-pressed={language === "en"}
+          onClick={toggleLanguage}
+          disabled={isTranslating || isSubmitting}
+        >
+          <span className={language === "pl" ? "header__language-active" : undefined}>
+            PL
+          </span>
+          <span aria-hidden="true">/</span>
+          <span className={language === "en" ? "header__language-active" : undefined}>
+            ENG
+          </span>
+        </button>
+      </div>
       <label className="access-form__label" htmlFor="portfolio-password">
         Hasło dostępu
       </label>

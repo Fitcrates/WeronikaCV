@@ -1094,6 +1094,20 @@ a {
   gap: 16px;
 }
 
+.access-form__toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.access-form__language {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
 .access-form__label {
   font-size: 12px;
   font-weight: 700;

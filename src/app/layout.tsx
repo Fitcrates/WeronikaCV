@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Host_Grotesk } from "next/font/google";
 import { VisualEditing } from "next-sanity/visual-editing";
+import LanguageProvider from "@/components/LanguageProvider";
 import { SanityLive } from "@/sanity/live";
 import { isSanityPreviewRequest } from "@/sanity/preview";
 import "./globals.css";
@@ -27,7 +28,7 @@ export default async function RootLayout({
   return (
     <html lang="pl" className={hostGrotesk.className}>
       <body>
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
         {isPreview && <VisualEditing />}
         <SanityLive />
       </body>
