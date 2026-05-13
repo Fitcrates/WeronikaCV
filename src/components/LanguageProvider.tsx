@@ -132,6 +132,10 @@ function getCacheKey(text: string, target: Language) {
   return `${TRANSLATION_CACHE_PREFIX}${target}:${text}`;
 }
 
+function getCachedTranslation(text: string, target: Language) {
+  return window.localStorage.getItem(getCacheKey(text, target));
+}
+
 function decodeHtmlEntities(value: string) {
   const textarea = document.createElement("textarea");
   textarea.innerHTML = value;
@@ -182,8 +186,17 @@ export default function LanguageProvider({ children }: { children: ReactNode }) 
       const uniqueTexts = new Set<string>();
 
       nodes.forEach((node) => {
-        if (!originalTextByNode.current.has(node)) {
-          originalTextByNode.current.set(node, { original: node.nodeValue || "" });
+        const currentValue = node.nodeValue || "";
+        const snapshot = originalTextByNode.current.get(node);
+        const cachedSnapshotTranslation = snapshot
+          ? getCachedTranslation(splitWhitespace(snapshot.original).text, target)
+          : null;
+
+        if (
+          !snapshot ||
+          (currentValue !== snapshot.original && currentValue !== cachedSnapshotTranslation)
+        ) {
+          originalTextByNode.current.set(node, { original: currentValue });
         }
 
         const original = originalTextByNode.current.get(node)?.original || "";
@@ -195,7 +208,7 @@ export default function LanguageProvider({ children }: { children: ReactNode }) 
       });
 
       const missingTexts = Array.from(uniqueTexts).filter(
-        (text) => !window.localStorage.getItem(getCacheKey(text, target))
+        (text) => !getCachedTranslation(text, target)
       );
 
       setIsTranslating(true);
@@ -239,7 +252,7 @@ export default function LanguageProvider({ children }: { children: ReactNode }) 
         nodes.forEach((node) => {
           const original = originalTextByNode.current.get(node)?.original || "";
           const { leading, text, trailing } = splitWhitespace(original);
-          const translatedText = window.localStorage.getItem(getCacheKey(text, target));
+          const translatedText = getCachedTranslation(text, target);
 
           if (translatedText && node.nodeValue !== `${leading}${translatedText}${trailing}`) {
             node.nodeValue = `${leading}${translatedText}${trailing}`;
@@ -288,11 +301,16 @@ export default function LanguageProvider({ children }: { children: ReactNode }) 
 
   useEffect(() => {
     const savedLanguage = getSavedLanguage();
+    originalTextByNode.current = new WeakMap();
     document.documentElement.lang = savedLanguage;
     scheduleTranslation(savedLanguage);
     window.setTimeout(() => {
+      scheduleTranslation(savedLanguage);
+    }, 350);
+    window.setTimeout(() => {
       setLanguageState(savedLanguage);
-    }, 0);
+      scheduleTranslation(savedLanguage);
+    }, 900);
   }, [pathname, scheduleTranslation]);
 
   useEffect(() => {
