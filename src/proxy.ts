@@ -24,7 +24,6 @@ function isPublicPath(pathname: string) {
 function isSanityPresentationPreview(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const referer = request.headers.get("referer");
-  const secFetchDest = request.headers.get("sec-fetch-dest");
   let refererUrl: URL | null = null;
 
   if (referer) {
@@ -45,7 +44,7 @@ function isSanityPresentationPreview(request: NextRequest) {
       refererUrl?.searchParams.has("sanity-preview-perspective") ||
         refererUrl?.searchParams.has("sanity-preview-secret")
     ) ||
-    Boolean(isSanityReferer && (!secFetchDest || secFetchDest === "iframe")) ||
+    Boolean(isSanityReferer) ||
     request.cookies.has("sanity-preview-perspective")
   );
 }

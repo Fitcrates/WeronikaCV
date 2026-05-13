@@ -39,6 +39,28 @@ function normalizeTexts(texts: unknown) {
     .slice(0, MAX_TEXTS_PER_REQUEST);
 }
 
+function getCanonicalReferer(request: Request) {
+  const configuredReferer = process.env.GOOGLE_TRANSLATE_REFERER;
+
+  if (configuredReferer) {
+    return configuredReferer;
+  }
+
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const source = origin || referer;
+
+  if (!source) {
+    return undefined;
+  }
+
+  try {
+    return `${new URL(source).origin}/`;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function POST(request: Request) {
   const apiKey = getTranslateApiKey();
 
@@ -64,16 +86,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ translations: [] });
   }
 
-  const referer = request.headers.get("referer");
-  const origin = request.headers.get("origin");
+  const referer = getCanonicalReferer(request);
   const requestHeaders: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
   if (referer) {
     requestHeaders.Referer = referer;
-  } else if (origin) {
-    requestHeaders.Referer = origin;
   }
 
   const response = await fetch(`${GOOGLE_TRANSLATE_ENDPOINT}?key=${apiKey}`, {

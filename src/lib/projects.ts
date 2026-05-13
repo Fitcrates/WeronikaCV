@@ -1,5 +1,6 @@
 import { sanityFetch } from "@/sanity/live";
 import { urlForImage } from "@/sanity/lib/image";
+import { stegaClean } from "next-sanity";
 import type { Image } from "sanity";
 
 /* ============================================
@@ -235,7 +236,7 @@ function getSanityImageUrl(image?: SanityGalleryImage | Image): string {
     return "";
   }
 
-  return urlForImage(image).url();
+  return stegaClean(urlForImage(image).url());
 }
 
 function getSanityFileUrl(file?: SanityGalleryVideo["video"]): string {
@@ -245,7 +246,7 @@ function getSanityFileUrl(file?: SanityGalleryVideo["video"]): string {
     return "";
   }
 
-  return asset.url || "";
+  return stegaClean(asset.url || "");
 }
 
 function isGalleryImageWithRatio(

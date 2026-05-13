@@ -71,6 +71,14 @@ export default function AccessForm({ redirectTo }: AccessFormProps) {
       <label className="access-form__label" htmlFor="portfolio-password">
         Hasło dostępu
       </label>
+      <input
+        type="text"
+        name="username"
+        value="portfolio"
+        autoComplete="username"
+        hidden
+        readOnly
+      />
       <div className="access-form__password-field">
         <input
           id="portfolio-password"
