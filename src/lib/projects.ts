@@ -403,7 +403,7 @@ function isGalleryEmptySlot(
 }
 
 function normalizeAspectRatio(aspectRatio?: string) {
-  const trimmed = aspectRatio?.trim();
+  const trimmed = stegaClean(aspectRatio || "").trim();
 
   if (!trimmed || trimmed === "auto" || trimmed === "custom") {
     return undefined;
@@ -559,7 +559,7 @@ function mapSanityProject(p: SanityProject): Project | undefined {
     slug,
     title: p.title,
     year: p.year || "",
-    folderColor: p.folderColor || "#dddddd",
+    folderColor: stegaClean(p.folderColor || "") || "#dddddd",
     thumbnail: getSanityImageUrl(p.thumbnail),
     description: p.description || "",
     scope: p.scope || "",
@@ -570,7 +570,7 @@ function mapSanityProject(p: SanityProject): Project | undefined {
             p,
             g._key ? `gallery[_key=="${g._key}"]` : `gallery[${blockIndex}]`
           ),
-          layout: g.layout || "full",
+          layout: (stegaClean(g.layout || "") as GalleryLayout) || "full",
           images: g.images
             ? g.images.map((image, imageIndex) => {
                 const imageKey =
@@ -604,8 +604,8 @@ export async function getProjects(preview = false): Promise<Project[]> {
   try {
     const { data: sanityProjects } = await sanityFetch({
       query: PROJECTS_QUERY,
-      perspective: preview ? "drafts" : "published",
-      stega: preview,
+      perspective: preview ? undefined : "published",
+      stega: preview ? undefined : false,
       tags: ["project"],
     });
 
@@ -632,8 +632,8 @@ export async function getProjectBySlug(slug: string, preview = false): Promise<P
     const { data: p } = await sanityFetch({
       query: PROJECT_BY_SLUG_QUERY,
       params: { slug },
-      perspective: preview ? "drafts" : "published",
-      stega: preview,
+      perspective: preview ? undefined : "published",
+      stega: preview ? undefined : false,
       tags: [`project:${slug}`, "project"],
     });
 

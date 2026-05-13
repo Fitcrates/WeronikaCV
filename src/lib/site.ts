@@ -83,8 +83,8 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
       cvContent,
       "cvFileUrl": cvFile.asset->url
     }`,
-      perspective: preview ? "drafts" : "published",
-      stega: preview,
+      perspective: preview ? undefined : "published",
+      stega: preview ? undefined : false,
       tags: ["siteSettings"],
     });
 
