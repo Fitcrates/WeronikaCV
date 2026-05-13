@@ -1,0 +1,707 @@
+[
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "Tytuł projektu"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "thumbnail",
+        "type": "image",
+        "title": "Miniatura (na stronie głównej)"
+      },
+      {
+        "initialValue": 0,
+        "name": "order",
+        "type": "number",
+        "title": "Kolejność na stronie głównej"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "regex",
+                "constraint": {
+                  "pattern": "/^#([0-9A-Fa-f]{3}){1,2}$/",
+                  "name": "hex color",
+                  "invert": false
+                }
+              }
+            ]
+          }
+        ],
+        "description": "Wybierz kolor z palety albo wpisz własny kod HEX.",
+        "name": "folderColor",
+        "type": "string",
+        "title": "Kolor folderu"
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "title": "Opis projektu"
+      },
+      {
+        "name": "scope",
+        "type": "string",
+        "title": "Zakres"
+      },
+      {
+        "name": "actions",
+        "type": "string",
+        "title": "Działania (Actions / Zakres)"
+      },
+      {
+        "name": "year",
+        "type": "string",
+        "title": "Rok wykonania"
+      },
+      {
+        "of": [
+          {
+            "type": "galleryBlock",
+            "title": "Blok Galerii"
+          }
+        ],
+        "name": "gallery",
+        "type": "array",
+        "title": "Galeria (Bloki zdjęć)"
+      }
+    ],
+    "name": "project",
+    "type": "document",
+    "title": "Projekt"
+  },
+  {
+    "fields": [
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Pełna szerokość (1 zdjęcie)",
+              "value": "full"
+            },
+            {
+              "title": "Dwie równe kolumny (2 zdjęcia)",
+              "value": "two-col"
+            },
+            {
+              "title": "Jedno duże lewe, dwa małe prawe (3 zdjęcia)",
+              "value": "one-two"
+            },
+            {
+              "title": "Dwa małe lewe, jedno duże prawe (3 zdjęcia)",
+              "value": "two-one"
+            },
+            {
+              "title": "Trzy równe kolumny (3 zdjęcia)",
+              "value": "three-col"
+            },
+            {
+              "title": "Dwa duże góra, dwa małe dół (Hero)",
+              "value": "hero-two"
+            },
+            {
+              "title": "Portret + dwa mniejsze zdjęcia",
+              "value": "portrait-stack"
+            },
+            {
+              "title": "Równa siatka zdjęć",
+              "value": "grid"
+            }
+          ],
+          "layout": "dropdown"
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "valid",
+                "constraint": [
+                  "full",
+                  "two-col",
+                  "one-two",
+                  "two-one",
+                  "three-col",
+                  "hero-two",
+                  "portrait-stack",
+                  "grid"
+                ]
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "layout",
+        "type": "string",
+        "title": "Układ (Layout)"
+      },
+      {
+        "initialValue": "4 / 3",
+        "options": {
+          "list": [
+            {
+              "title": "Auto / oryginalne",
+              "value": "auto"
+            },
+            {
+              "title": "Kwadrat 1:1",
+              "value": "1 / 1"
+            },
+            {
+              "title": "Poziome 4:3",
+              "value": "4 / 3"
+            },
+            {
+              "title": "Pionowe 3:4",
+              "value": "3 / 4"
+            },
+            {
+              "title": "Szerokie 16:9",
+              "value": "16 / 9"
+            },
+            {
+              "title": "Pionowe 9:16",
+              "value": "9 / 16"
+            },
+            {
+              "title": "Portret 4:5",
+              "value": "4 / 5"
+            },
+            {
+              "title": "Poziome 5:4",
+              "value": "5 / 4"
+            },
+            {
+              "title": "Poziome 3:2",
+              "value": "3 / 2"
+            },
+            {
+              "title": "Pionowe 2:3",
+              "value": "2 / 3"
+            },
+            {
+              "title": "Własne",
+              "value": "custom"
+            }
+          ],
+          "layout": "dropdown"
+        },
+        "description": "Stosowane do wszystkich zdjęć i wideo w tym bloku. Pojedynczy element z własnym aspect ratio nadpisuje tę wartość.",
+        "name": "aspectRatio",
+        "type": "string",
+        "title": "Aspect ratio mediów w bloku"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ]
+          }
+        ],
+        "description": "Wpisz np. 7 / 5, 21 / 9, 1080 / 1350. Używane, gdy wyżej wybrano \"Własne\".",
+        "hidden": "conditional",
+        "name": "customAspectRatio",
+        "type": "string",
+        "title": "Własny aspect ratio"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "description": "Dodawaj zdjęcia, wideo albo pusty slot. Pozycje w tablicy są zachowywane w renderze.",
+        "of": [
+          {
+            "fields": [
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "description": "Zostaw puste, jeżeli ten element ma być pustym miejscem w siatce.",
+                "name": "image",
+                "type": "image",
+                "title": "Zdjęcie"
+              },
+              {
+                "initialValue": "auto",
+                "options": {
+                  "list": [
+                    {
+                      "title": "Auto / oryginalne",
+                      "value": "auto"
+                    },
+                    {
+                      "title": "Kwadrat 1:1",
+                      "value": "1 / 1"
+                    },
+                    {
+                      "title": "Poziome 4:3",
+                      "value": "4 / 3"
+                    },
+                    {
+                      "title": "Pionowe 3:4",
+                      "value": "3 / 4"
+                    },
+                    {
+                      "title": "Szerokie 16:9",
+                      "value": "16 / 9"
+                    },
+                    {
+                      "title": "Pionowe 9:16",
+                      "value": "9 / 16"
+                    },
+                    {
+                      "title": "Portret 4:5",
+                      "value": "4 / 5"
+                    },
+                    {
+                      "title": "Poziome 5:4",
+                      "value": "5 / 4"
+                    },
+                    {
+                      "title": "Poziome 3:2",
+                      "value": "3 / 2"
+                    },
+                    {
+                      "title": "Pionowe 2:3",
+                      "value": "2 / 3"
+                    },
+                    {
+                      "title": "Własne",
+                      "value": "custom"
+                    }
+                  ],
+                  "layout": "dropdown"
+                },
+                "name": "aspectRatio",
+                "type": "string",
+                "title": "Aspect ratio"
+              },
+              {
+                "validation": [
+                  {
+                    "level": "error",
+                    "rules": [
+                      {
+                        "flag": "custom"
+                      }
+                    ]
+                  }
+                ],
+                "description": "Wpisz np. 7 / 5, 21 / 9, 1080 / 1350.",
+                "hidden": "conditional",
+                "name": "customAspectRatio",
+                "type": "string",
+                "title": "Własny aspect ratio"
+              },
+              {
+                "validation": [
+                  {
+                    "level": "error",
+                    "rules": [
+                      {
+                        "flag": "min",
+                        "constraint": 1
+                      },
+                      {
+                        "flag": "max",
+                        "constraint": 1200
+                      }
+                    ]
+                  }
+                ],
+                "description": "Opcjonalnie. Maksymalnie 1200 px, czyli szerokość kontenera.",
+                "name": "customWidthPx",
+                "type": "number",
+                "title": "Własna szerokość renderu (px)"
+              },
+              {
+                "validation": [
+                  {
+                    "level": "error",
+                    "rules": [
+                      {
+                        "flag": "custom"
+                      }
+                    ]
+                  }
+                ],
+                "description": "Opcjonalnie. Jeżeli podasz szerokość, podaj też wysokość.",
+                "name": "customHeightPx",
+                "type": "number",
+                "title": "Własna wysokość renderu (px)"
+              },
+              {
+                "initialValue": 50,
+                "validation": [
+                  {
+                    "level": "error",
+                    "rules": [
+                      {
+                        "flag": "min",
+                        "constraint": 0
+                      },
+                      {
+                        "flag": "max",
+                        "constraint": 100
+                      }
+                    ]
+                  }
+                ],
+                "hidden": true,
+                "name": "objectPositionX",
+                "type": "number",
+                "title": "Kadr poziomo (%)"
+              },
+              {
+                "initialValue": 50,
+                "validation": [
+                  {
+                    "level": "error",
+                    "rules": [
+                      {
+                        "flag": "min",
+                        "constraint": 0
+                      },
+                      {
+                        "flag": "max",
+                        "constraint": 100
+                      }
+                    ]
+                  }
+                ],
+                "hidden": true,
+                "name": "objectPositionY",
+                "type": "number",
+                "title": "Kadr pionowo (%)"
+              }
+            ],
+            "type": "object",
+            "name": "galleryImage",
+            "title": "Zdjęcie z proporcjami"
+          },
+          {
+            "fields": [
+              {
+                "options": {
+                  "accept": "video/*"
+                },
+                "validation": [
+                  {
+                    "level": "error",
+                    "rules": [
+                      {
+                        "flag": "presence",
+                        "constraint": "required"
+                      }
+                    ]
+                  }
+                ],
+                "name": "video",
+                "type": "file",
+                "title": "Plik wideo"
+              },
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "name": "poster",
+                "type": "image",
+                "title": "Poster / miniatura wideo"
+              },
+              {
+                "initialValue": "auto",
+                "options": {
+                  "list": [
+                    {
+                      "title": "Auto / oryginalne",
+                      "value": "auto"
+                    },
+                    {
+                      "title": "Kwadrat 1:1",
+                      "value": "1 / 1"
+                    },
+                    {
+                      "title": "Poziome 4:3",
+                      "value": "4 / 3"
+                    },
+                    {
+                      "title": "Pionowe 3:4",
+                      "value": "3 / 4"
+                    },
+                    {
+                      "title": "Szerokie 16:9",
+                      "value": "16 / 9"
+                    },
+                    {
+                      "title": "Pionowe 9:16",
+                      "value": "9 / 16"
+                    },
+                    {
+                      "title": "Portret 4:5",
+                      "value": "4 / 5"
+                    },
+                    {
+                      "title": "Poziome 5:4",
+                      "value": "5 / 4"
+                    },
+                    {
+                      "title": "Poziome 3:2",
+                      "value": "3 / 2"
+                    },
+                    {
+                      "title": "Pionowe 2:3",
+                      "value": "2 / 3"
+                    },
+                    {
+                      "title": "Własne",
+                      "value": "custom"
+                    }
+                  ],
+                  "layout": "dropdown"
+                },
+                "name": "aspectRatio",
+                "type": "string",
+                "title": "Aspect ratio"
+              },
+              {
+                "validation": [
+                  {
+                    "level": "error",
+                    "rules": [
+                      {
+                        "flag": "custom"
+                      }
+                    ]
+                  }
+                ],
+                "description": "Wpisz np. 7 / 5, 21 / 9, 1080 / 1350.",
+                "hidden": "conditional",
+                "name": "customAspectRatio",
+                "type": "string",
+                "title": "Własny aspect ratio"
+              }
+            ],
+            "type": "object",
+            "name": "galleryVideo",
+            "title": "Wideo"
+          },
+          {
+            "fields": [
+              {
+                "description": "Opcjonalna notatka tylko dla edytora.",
+                "name": "note",
+                "type": "string",
+                "title": "Notatka"
+              }
+            ],
+            "type": "object",
+            "name": "galleryEmptySlot",
+            "title": "Pusty slot"
+          },
+          {
+            "options": {
+              "hotspot": true
+            },
+            "type": "image",
+            "title": "Zdjęcie legacy bez aspect ratio"
+          }
+        ],
+        "name": "images",
+        "type": "array",
+        "title": "Media"
+      }
+    ],
+    "name": "galleryBlock",
+    "type": "object",
+    "title": "Blok Galerii"
+  },
+  {
+    "fields": [
+      {
+        "initialValue": "Weronika Grzesiowska",
+        "name": "title",
+        "type": "string",
+        "title": "Tytuł strony"
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "title": "Opis SEO"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 1
+              }
+            ]
+          }
+        ],
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "heroTitleLines",
+        "type": "array",
+        "title": "Nagłówek hero"
+      },
+      {
+        "name": "heroGreeting",
+        "type": "string",
+        "title": "Przywitanie w hero"
+      },
+      {
+        "of": [
+          {
+            "type": "text"
+          }
+        ],
+        "name": "heroBio",
+        "type": "array",
+        "title": "Akapity bio w hero"
+      },
+      {
+        "initialValue": "Projekty",
+        "name": "projectsTitle",
+        "type": "string",
+        "title": "Tytuł sekcji projektów"
+      },
+      {
+        "name": "contactName",
+        "type": "string",
+        "title": "Kontakt: imię i nazwisko"
+      },
+      {
+        "name": "contactEmail",
+        "type": "string",
+        "title": "Kontakt: email"
+      },
+      {
+        "name": "contactPhone",
+        "type": "string",
+        "title": "Kontakt: telefon"
+      },
+      {
+        "initialValue": "O mnie",
+        "name": "aboutTitle",
+        "type": "string",
+        "title": "O mnie: tytuł"
+      },
+      {
+        "of": [
+          {
+            "type": "text"
+          }
+        ],
+        "name": "aboutContent",
+        "type": "array",
+        "title": "O mnie: treść"
+      },
+      {
+        "initialValue": "CV",
+        "name": "cvTitle",
+        "type": "string",
+        "title": "CV: tytuł"
+      },
+      {
+        "of": [
+          {
+            "type": "text"
+          }
+        ],
+        "name": "cvContent",
+        "type": "array",
+        "title": "CV: treść"
+      },
+      {
+        "options": {
+          "accept": ".pdf"
+        },
+        "name": "cvFile",
+        "type": "file",
+        "title": "CV: plik PDF"
+      }
+    ],
+    "name": "siteSettings",
+    "type": "document",
+    "title": "Ustawienia strony"
+  }
+]

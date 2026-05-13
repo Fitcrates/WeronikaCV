@@ -6,14 +6,22 @@ export const client = createClient({
   dataset,
   apiVersion,
   useCdn,
+  perspective: 'published',
+  stega: {
+    studioUrl: '/studio',
+  },
 })
+
+export function getSanityReadToken() {
+  return process.env.SANITY_API_READ_TOKEN || process.env.SANITY_API_KEY
+}
 
 export function getSanityClient(preview = false) {
   if (!preview) {
     return client
   }
 
-  const token = process.env.SANITY_API_READ_TOKEN
+  const token = getSanityReadToken()
 
   if (!token) {
     return client

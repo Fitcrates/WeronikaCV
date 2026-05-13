@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity';
+import GalleryBlockInput from '../components/GalleryBlockInput';
 
 const aspectRatioOptions = [
   { title: 'Auto / oryginalne', value: 'auto' },
@@ -14,10 +15,68 @@ const aspectRatioOptions = [
   { title: 'Własne', value: 'custom' },
 ];
 
+const customAspectRatioField = defineField({
+  name: 'customAspectRatio',
+  title: 'Własny aspect ratio',
+  type: 'string',
+  description: 'Wpisz np. 7 / 5, 21 / 9, 1080 / 1350.',
+  hidden: ({ parent }) => parent?.aspectRatio !== 'custom',
+  validation: Rule => Rule.custom((value, context) => {
+    if ((context.parent as { aspectRatio?: string })?.aspectRatio !== 'custom') {
+      return true;
+    }
+
+    return value?.trim()
+      ? true
+      : 'Podaj własne proporcje, np. 7 / 5.';
+  })
+});
+
+const customImageSizeFields = [
+  defineField({
+    name: 'customWidthPx',
+    title: 'Własna szerokość renderu (px)',
+    type: 'number',
+    description: 'Opcjonalnie. Maksymalnie 1200 px, czyli szerokość kontenera.',
+    validation: Rule => Rule.min(1).max(1200).integer()
+  }),
+  defineField({
+    name: 'customHeightPx',
+    title: 'Własna wysokość renderu (px)',
+    type: 'number',
+    description: 'Opcjonalnie. Jeżeli podasz szerokość, podaj też wysokość.',
+    validation: Rule => Rule.custom((value, context) => {
+      const parent = context.parent as {
+        customWidthPx?: number;
+        customHeightPx?: number;
+      };
+
+      if (!parent?.customWidthPx && !value) {
+        return true;
+      }
+
+      if (parent?.customWidthPx && !value) {
+        return 'Podaj wysokość px dla własnego rozmiaru.';
+      }
+
+      if (!parent?.customWidthPx && value) {
+        return 'Podaj też szerokość px dla własnego rozmiaru.';
+      }
+
+      return typeof value === 'number' && Number.isInteger(value) && value > 0
+        ? true
+        : 'Wysokość musi być dodatnią liczbą całkowitą.';
+    })
+  })
+];
+
 export const galleryBlockType = defineType({
   name: 'galleryBlock',
   title: 'Blok Galerii',
   type: 'object',
+  components: {
+    input: GalleryBlockInput,
+  },
   fields: [
     defineField({
       name: 'layout',
@@ -50,20 +109,8 @@ export const galleryBlockType = defineType({
       }
     }),
     defineField({
-      name: 'customAspectRatio',
-      title: 'Własny aspect ratio bloku',
-      type: 'string',
+      ...customAspectRatioField,
       description: 'Wpisz np. 7 / 5, 21 / 9, 1080 / 1350. Używane, gdy wyżej wybrano "Własne".',
-      hidden: ({ parent }) => parent?.aspectRatio !== 'custom',
-      validation: Rule => Rule.custom((value, context) => {
-        if ((context.parent as { aspectRatio?: string })?.aspectRatio !== 'custom') {
-          return true;
-        }
-
-        return value?.trim()
-          ? true
-          : 'Podaj własne proporcje, np. 7 / 5.';
-      })
     }),
     defineField({
       name: 'images',
@@ -93,35 +140,42 @@ export const galleryBlockType = defineType({
                 layout: 'dropdown'
               }
             }),
+            customAspectRatioField,
+            ...customImageSizeFields,
             defineField({
-              name: 'customAspectRatio',
-              title: 'Własny aspect ratio',
-              type: 'string',
-              description: 'Wpisz np. 7 / 5, 21 / 9, 1080 / 1350. Nadpisuje proporcje bloku.',
-              hidden: ({ parent }) => parent?.aspectRatio !== 'custom',
-              validation: Rule => Rule.custom((value, context) => {
-                if ((context.parent as { aspectRatio?: string })?.aspectRatio !== 'custom') {
-                  return true;
-                }
-
-                return value?.trim()
-                  ? true
-                  : 'Podaj własne proporcje, np. 7 / 5.';
-              })
+              name: 'objectPositionX',
+              title: 'Kadr poziomo (%)',
+              type: 'number',
+              initialValue: 50,
+              hidden: true,
+              validation: Rule => Rule.min(0).max(100)
+            }),
+            defineField({
+              name: 'objectPositionY',
+              title: 'Kadr pionowo (%)',
+              type: 'number',
+              initialValue: 50,
+              hidden: true,
+              validation: Rule => Rule.min(0).max(100)
             })
           ],
           preview: {
             select: {
               media: 'image',
               aspectRatio: 'aspectRatio',
-              customAspectRatio: 'customAspectRatio'
+              customAspectRatio: 'customAspectRatio',
+              customWidthPx: 'customWidthPx',
+              customHeightPx: 'customHeightPx'
             },
-            prepare({ media, aspectRatio, customAspectRatio }) {
+            prepare({ media, aspectRatio, customAspectRatio, customWidthPx, customHeightPx }) {
               const ratio = aspectRatio === 'custom' ? customAspectRatio : aspectRatio;
+              const size = customWidthPx && customHeightPx
+                ? ` • ${customWidthPx}x${customHeightPx}px`
+                : '';
 
               return {
                 title: media
-                  ? (ratio && ratio !== 'auto' ? `Zdjęcie ${ratio}` : 'Zdjęcie auto')
+                  ? (ratio && ratio !== 'auto' ? `Zdjęcie ${ratio}${size}` : `Zdjęcie auto${size}`)
                   : 'Pusty slot',
                 media
               }
@@ -158,22 +212,7 @@ export const galleryBlockType = defineType({
                 layout: 'dropdown'
               }
             }),
-            defineField({
-              name: 'customAspectRatio',
-              title: 'Własny aspect ratio',
-              type: 'string',
-              description: 'Wpisz np. 7 / 5, 21 / 9, 1080 / 1350. Nadpisuje proporcje bloku.',
-              hidden: ({ parent }) => parent?.aspectRatio !== 'custom',
-              validation: Rule => Rule.custom((value, context) => {
-                if ((context.parent as { aspectRatio?: string })?.aspectRatio !== 'custom') {
-                  return true;
-                }
-
-                return value?.trim()
-                  ? true
-                  : 'Podaj własne proporcje, np. 7 / 5.';
-              })
-            })
+            customAspectRatioField
           ],
           preview: {
             select: {

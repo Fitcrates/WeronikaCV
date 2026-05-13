@@ -1,4 +1,4 @@
-import { getSanityClient } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/live";
 import { urlForImage } from "@/sanity/lib/image";
 import type { Image } from "sanity";
 
@@ -24,6 +24,10 @@ export interface GalleryImage {
   src: string;
   orientation: GalleryImageOrientation;
   aspectRatio?: GalleryAspectRatio;
+  customWidthPx?: number;
+  customHeightPx?: number;
+  objectPositionX?: number;
+  objectPositionY?: number;
   width?: number;
   height?: number;
   lqip?: string;
@@ -75,6 +79,10 @@ interface SanityGalleryImageWithRatio {
   image?: SanityGalleryImage;
   aspectRatio?: GalleryAspectRatio;
   customAspectRatio?: string;
+  customWidthPx?: number;
+  customHeightPx?: number;
+  objectPositionX?: number;
+  objectPositionY?: number;
 }
 
 interface SanityGalleryEmptySlot {
@@ -290,7 +298,15 @@ function getGalleryImageSource(
     | SanityGalleryEmptySlot
     | null
     | 0
-): { image?: SanityGalleryImage; aspectRatio?: GalleryAspectRatio; customAspectRatio?: string } {
+): {
+  image?: SanityGalleryImage;
+  aspectRatio?: GalleryAspectRatio;
+  customAspectRatio?: string;
+  customWidthPx?: number;
+  customHeightPx?: number;
+  objectPositionX?: number;
+  objectPositionY?: number;
+} {
   if (!item) {
     return {};
   }
@@ -308,6 +324,10 @@ function getGalleryImageSource(
       image: item.image,
       aspectRatio: item.aspectRatio,
       customAspectRatio: item.customAspectRatio,
+      customWidthPx: item.customWidthPx,
+      customHeightPx: item.customHeightPx,
+      objectPositionX: item.objectPositionX,
+      objectPositionY: item.objectPositionY,
     };
   }
 
@@ -346,7 +366,16 @@ function mapGalleryImage(
     };
   }
 
-  const { image, aspectRatio, customAspectRatio } = getGalleryImageSource(item);
+  const {
+    image,
+    aspectRatio,
+    customAspectRatio,
+    customWidthPx,
+    customHeightPx,
+    objectPositionX,
+    objectPositionY,
+  } =
+    getGalleryImageSource(item);
   const src = getSanityImageUrl(image);
 
   if (!src || !image) {
@@ -365,6 +394,10 @@ function mapGalleryImage(
       blockAspectRatio,
       blockCustomAspectRatio
     ),
+    customWidthPx,
+    customHeightPx,
+    objectPositionX,
+    objectPositionY,
     width: dimensions?.width,
     height: dimensions?.height,
     lqip: image.asset?.metadata?.lqip,
@@ -400,7 +433,8 @@ function mapSanityProject(p: SanityProject): Project | undefined {
 
 export async function getProjects(preview = false): Promise<Project[]> {
   try {
-    const sanityProjects = await getSanityClient(preview).fetch<SanityProject[]>(`*[_type == "project"] | order(order asc, _createdAt desc){
+    const { data: sanityProjects } = await sanityFetch({
+      query: `*[_type == "project"] | order(order asc, _createdAt desc){
       ...,
       gallery[]{
         layout,
@@ -447,9 +481,16 @@ export async function getProjects(preview = false): Promise<Project[]> {
           }
         }
       }
-    }`);
-    if (sanityProjects && sanityProjects.length > 0) {
-      const mappedProjects = sanityProjects
+    }`,
+      perspective: preview ? "drafts" : "published",
+      stega: preview,
+      tags: ["project"],
+    });
+
+    const projects = sanityProjects as SanityProject[] | null;
+
+    if (projects && projects.length > 0) {
+      const mappedProjects = projects
         .map(mapSanityProject)
         .filter((project): project is Project => Boolean(project));
 
@@ -466,7 +507,8 @@ export async function getProjects(preview = false): Promise<Project[]> {
 
 export async function getProjectBySlug(slug: string, preview = false): Promise<Project | undefined> {
   try {
-    const p = await getSanityClient(preview).fetch<SanityProject | null>(`*[_type == "project" && slug.current == $slug][0]{
+    const { data: p } = await sanityFetch({
+      query: `*[_type == "project" && slug.current == $slug][0]{
       ...,
       gallery[]{
         layout,
@@ -510,9 +552,15 @@ export async function getProjectBySlug(slug: string, preview = false): Promise<P
           }
         }
       }
-    }`, { slug });
+    }`,
+      params: { slug },
+      perspective: preview ? "drafts" : "published",
+      stega: preview,
+      tags: [`project:${slug}`, "project"],
+    });
+
     if (p) {
-      const project = mapSanityProject(p);
+      const project = mapSanityProject(p as SanityProject);
 
       if (project) {
         return project;

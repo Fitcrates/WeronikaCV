@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const ACCESS_COOKIE_NAME = "portfolio_access";
+const DRAFT_MODE_COOKIE_NAME = "__prerender_bypass";
 const PUBLIC_FILE_PATTERN = /\.[^/]+$/;
 
 function getAccessToken() {
@@ -28,7 +29,7 @@ export function proxy(request: NextRequest) {
 
   const accessCookie = request.cookies.get(ACCESS_COOKIE_NAME)?.value;
 
-  if (accessCookie === getAccessToken()) {
+  if (accessCookie === getAccessToken() || request.cookies.has(DRAFT_MODE_COOKIE_NAME)) {
     return NextResponse.next();
   }
 

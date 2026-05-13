@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import type { ImageLoaderProps } from "next/image";
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { GalleryMediaSlot, GalleryRow } from "@/lib/projects";
 import GalleryImageZoomModal from "@/components/GalleryImageZoomModal";
 import type { GalleryZoomImage } from "@/components/GalleryImageZoomModal";
@@ -16,11 +17,6 @@ interface RenderableGalleryRow {
   images: GalleryMediaSlot[];
 }
 
-interface LoadSequenceState {
-  activeRowIndex: number;
-  completedMediaKeys: Set<string>;
-}
-
 function getRenderableRows(rows: GalleryRow[]): RenderableGalleryRow[] {
   return rows.map((row) => ({
     className: `gallery-row--${row.layout}`,
@@ -29,20 +25,50 @@ function getRenderableRows(rows: GalleryRow[]): RenderableGalleryRow[] {
 }
 
 function getMediaFrameStyle(media: NonNullable<GalleryMediaSlot>): CSSProperties {
+  const customWidthPx = "customWidthPx" in media ? media.customWidthPx : undefined;
+  const customHeightPx = "customHeightPx" in media ? media.customHeightPx : undefined;
   const naturalAspectRatio =
     "width" in media && media.width && media.height
       ? `${media.width} / ${media.height}`
       : "3 / 2";
+  const customSizeAspectRatio =
+    customWidthPx && customHeightPx ? `${customWidthPx} / ${customHeightPx}` : undefined;
 
   return {
     "--gallery-natural-aspect-ratio": naturalAspectRatio,
-    ...(media.aspectRatio
-      ? { "--gallery-image-aspect-ratio": media.aspectRatio }
+    ...(customSizeAspectRatio || media.aspectRatio
+      ? { "--gallery-image-aspect-ratio": customSizeAspectRatio || media.aspectRatio }
       : {}),
+    ...("objectPositionX" in media &&
+    typeof media.objectPositionX === "number" &&
+    typeof media.objectPositionY === "number"
+      ? {
+          "--gallery-object-position": `${media.objectPositionX}% ${media.objectPositionY}%`,
+        }
+      : {}),
+    ...(customWidthPx ? { "--gallery-custom-width": `${customWidthPx}px` } : {}),
+    ...(customHeightPx ? { "--gallery-custom-height": `${customHeightPx}px` } : {}),
   } as CSSProperties;
 }
 
-function getSizesForLayout(layout: string, imageIndex: number): string {
+function hasCustomSize(media: GalleryMediaSlot) {
+  return Boolean(
+    media &&
+      "customWidthPx" in media &&
+      media.customWidthPx &&
+      media.customHeightPx
+  );
+}
+
+function getSizesForLayout(
+  layout: string,
+  imageIndex: number,
+  media: GalleryMediaSlot
+): string {
+  if (media && "customWidthPx" in media && media.customWidthPx) {
+    return `(max-width: 640px) 100vw, ${media.customWidthPx}px`;
+  }
+
   switch (layout) {
     case "gallery-row--full":
       return "(max-width: 640px) 100vw, 1200px";
@@ -68,7 +94,20 @@ function getSizesForLayout(layout: string, imageIndex: number): string {
   }
 }
 
-const PRIORITY_ROW_COUNT = 2;
+function sanityImageLoader({ src, width, quality }: ImageLoaderProps) {
+  if (!src.startsWith("https://cdn.sanity.io/")) {
+    return src;
+  }
+
+  const url = new URL(src);
+  url.searchParams.set("auto", "format");
+  url.searchParams.set("fit", "max");
+  url.searchParams.set("w", String(width));
+  url.searchParams.set("q", String(quality ?? 75));
+
+  return url.toString();
+}
+
 const prefetchedZoomImages = new Map<string, HTMLImageElement>();
 
 function prefetchZoomImage(src: string) {
@@ -80,125 +119,36 @@ function prefetchZoomImage(src: string) {
   prefetchedZoomImages.set(src, image);
 }
 
-function getMediaKey(rowIndex: number, mediaIndex: number) {
-  return `${rowIndex}-${mediaIndex}`;
-}
-
-function getRowMediaKeys(row: RenderableGalleryRow | undefined, rowIndex: number) {
-  if (!row) return [];
-
-  return row.images
-    .map((media, mediaIndex) =>
-      media ? getMediaKey(rowIndex, mediaIndex) : null
-    )
-    .filter((key): key is string => Boolean(key));
-}
-
-function getNextPendingRowIndex(
-  rows: RenderableGalleryRow[],
-  startRowIndex: number,
-  completedMediaKeys: Set<string>
-) {
-  let nextRowIndex = startRowIndex;
-
-  while (nextRowIndex < rows.length) {
-    const rowKeys = getRowMediaKeys(rows[nextRowIndex], nextRowIndex);
-    const isRowComplete =
-      rowKeys.length === 0 ||
-      rowKeys.every((key) => completedMediaKeys.has(key));
-
-    if (!isRowComplete) break;
-    nextRowIndex += 1;
-  }
-
-  return nextRowIndex;
-}
-
 export default function ProjectGallery({ rows }: ProjectGalleryProps) {
   const renderableRows = getRenderableRows(rows);
-  const galleryRef = useRef<HTMLDivElement>(null);
   const [zoomedImage, setZoomedImage] = useState<GalleryZoomImage | null>(null);
-  const [loadSequence, setLoadSequence] = useState<LoadSequenceState>(() => ({
-    activeRowIndex: getNextPendingRowIndex(renderableRows, 0, new Set()),
-    completedMediaKeys: new Set(),
-  }));
-
-  function markMediaComplete(mediaKey: string) {
-    setLoadSequence((current) => {
-      if (current.completedMediaKeys.has(mediaKey)) {
-        return current;
-      }
-
-      const completedMediaKeys = new Set(current.completedMediaKeys);
-      completedMediaKeys.add(mediaKey);
-
-      return {
-        completedMediaKeys,
-        activeRowIndex: getNextPendingRowIndex(
-          renderableRows,
-          current.activeRowIndex,
-          completedMediaKeys
-        ),
-      };
-    });
-  }
-
-  useEffect(() => {
-    const gallery = galleryRef.current;
-    if (!gallery) return;
-
-    const items = gallery.querySelectorAll<HTMLElement>(".gallery__item");
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("gallery__item--visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        rootMargin: "50px 0px",
-        threshold: 0.05,
-      }
-    );
-
-    items.forEach((item) => observer.observe(item));
-
-    return () => observer.disconnect();
-  }, [rows]);
 
   return (
     <>
-      <div ref={galleryRef} className="gallery">
+      <div className="gallery">
         {renderableRows.map((row, rowIdx) => {
-          const isAboveFold = rowIdx < PRIORITY_ROW_COUNT;
-          const isRowLoadAllowed = rowIdx <= loadSequence.activeRowIndex;
-          const isActiveRow = rowIdx === loadSequence.activeRowIndex;
+          const isFirstRow = rowIdx === 0;
+          const shouldEagerLoad = rowIdx < 3;
 
           return (
             <div key={rowIdx} className={row.className}>
               {row.images.map((media, imgIdx) => {
                 const imageAlt = `Galeria zdjęcie ${rowIdx + 1}-${imgIdx + 1}`;
                 const imageId = `${rowIdx}-${imgIdx}-${media?.src ?? "empty"}`;
-                const mediaKey = getMediaKey(rowIdx, imgIdx);
 
                 return (
                   <figure
                     key={`${rowIdx}-${imgIdx}`}
-                    className={`gallery__item${media ? "" : " gallery__item--empty"}${isAboveFold || !isRowLoadAllowed ? " gallery__item--visible" : ""}`}
+                    className={`gallery__item gallery__item--visible${media ? "" : " gallery__item--empty"}${hasCustomSize(media) ? " gallery__item--custom-size" : ""}`}
                     style={media ? getMediaFrameStyle(media) : undefined}
                   >
-                    {!isRowLoadAllowed ? null : media?.kind === "video" ? (
+                    {media?.kind === "video" ? (
                       <video
                         className="gallery__video"
                         controls
                         playsInline
-                        preload="metadata"
+                        preload={shouldEagerLoad ? "metadata" : "none"}
                         poster={media.poster}
-                        onLoadedMetadata={() => markMediaComplete(mediaKey)}
-                        onError={() => markMediaComplete(mediaKey)}
                       >
                         <source
                           src={media.src}
@@ -233,15 +183,15 @@ export default function ProjectGallery({ rows }: ProjectGalleryProps) {
                           }}
                         >
                           <Image
+                            loader={sanityImageLoader}
                             src={media.src}
                             alt={imageAlt}
                             fill
                             className="gallery__image"
-                            sizes={getSizesForLayout(row.className, imgIdx)}
-                            loading="eager"
-                            fetchPriority={isActiveRow ? "high" : "auto"}
-                            onLoad={() => markMediaComplete(mediaKey)}
-                            onError={() => markMediaComplete(mediaKey)}
+                            sizes={getSizesForLayout(row.className, imgIdx, media)}
+                            loading={shouldEagerLoad ? "eager" : "lazy"}
+                            fetchPriority={isFirstRow ? "high" : "auto"}
+                            quality={75}
                           />
                         </motion.span>
                       </button>

@@ -616,7 +616,7 @@ a {
 .gallery__image {
   display: block;
   object-fit: cover;
-  object-position: center;
+  object-position: var(--gallery-object-position, center);
 }
 
 .gallery__video {
@@ -831,6 +831,12 @@ a {
 .gallery-row--portrait-stack .gallery__item:not(:first-child) {
   width: 100%;
   aspect-ratio: var(--gallery-image-aspect-ratio, var(--gallery-natural-aspect-ratio, 1 / 1));
+}
+
+.gallery__item--custom-size {
+  justify-self: center;
+  width: min(var(--gallery-custom-width), 100%) !important;
+  max-width: 100%;
 }
 
 /* Items start hidden; revealed by IntersectionObserver adding --visible */

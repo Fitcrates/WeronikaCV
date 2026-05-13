@@ -1,4 +1,4 @@
-import { getSanityClient } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/live";
 
 export interface ContactInfo {
   name: string;
@@ -21,6 +21,23 @@ export interface SiteSettings {
   cvFileUrl?: string;
 }
 
+interface SanitySiteSettings {
+  title?: string;
+  description?: string;
+  heroTitleLines?: string[];
+  heroGreeting?: string;
+  heroBio?: string[];
+  projectsTitle?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  aboutTitle?: string;
+  aboutContent?: string[];
+  cvTitle?: string;
+  cvContent?: string[];
+  cvFileUrl?: string;
+}
+
 export const hardcodedSiteSettings: SiteSettings = {
   title: "Weronika Grzesiowska",
   description: "Portfolio projektowe Weroniki Grzesiowskiej — grafika, ilustracja, branding.",
@@ -33,8 +50,8 @@ export const hardcodedSiteSettings: SiteSettings = {
   projectsTitle: "Projekty",
   contact: {
     name: "Weronika Grzesiowska",
-    email: "weronika.grzesiowska@example.com",
-    phone: "+48 123 456 789",
+    email: "weronikagrzesiowska@gmail.com",
+    phone: "+48 732 252 434",
   },
   aboutTitle: "O mnie",
   aboutContent: [
@@ -49,7 +66,8 @@ export const hardcodedSiteSettings: SiteSettings = {
 
 export async function getSiteSettings(preview = false): Promise<SiteSettings> {
   try {
-    const data = await getSanityClient(preview).fetch(`*[_type == "siteSettings"][0]{
+    const { data } = await sanityFetch({
+      query: `*[_type == "siteSettings"][0]{
       title,
       description,
       heroTitleLines,
@@ -64,26 +82,32 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
       cvTitle,
       cvContent,
       "cvFileUrl": cvFile.asset->url
-    }`);
+    }`,
+      perspective: preview ? "drafts" : "published",
+      stega: preview,
+      tags: ["siteSettings"],
+    });
 
-    if (data) {
+    const settings = data as SanitySiteSettings | null;
+
+    if (settings) {
       return {
-        title: data.title || hardcodedSiteSettings.title,
-        description: data.description || hardcodedSiteSettings.description,
-        heroTitleLines: data.heroTitleLines?.length ? data.heroTitleLines : hardcodedSiteSettings.heroTitleLines,
-        heroGreeting: data.heroGreeting || hardcodedSiteSettings.heroGreeting,
-        heroBio: data.heroBio?.length ? data.heroBio : hardcodedSiteSettings.heroBio,
-        projectsTitle: data.projectsTitle || hardcodedSiteSettings.projectsTitle,
+        title: settings.title || hardcodedSiteSettings.title,
+        description: settings.description || hardcodedSiteSettings.description,
+        heroTitleLines: settings.heroTitleLines?.length ? settings.heroTitleLines : hardcodedSiteSettings.heroTitleLines,
+        heroGreeting: settings.heroGreeting || hardcodedSiteSettings.heroGreeting,
+        heroBio: settings.heroBio?.length ? settings.heroBio : hardcodedSiteSettings.heroBio,
+        projectsTitle: settings.projectsTitle || hardcodedSiteSettings.projectsTitle,
         contact: {
-          name: data.contactName || hardcodedSiteSettings.contact.name,
-          email: data.contactEmail || hardcodedSiteSettings.contact.email,
-          phone: data.contactPhone || hardcodedSiteSettings.contact.phone,
+          name: settings.contactName || hardcodedSiteSettings.contact.name,
+          email: settings.contactEmail || hardcodedSiteSettings.contact.email,
+          phone: settings.contactPhone || hardcodedSiteSettings.contact.phone,
         },
-        aboutTitle: data.aboutTitle || hardcodedSiteSettings.aboutTitle,
-        aboutContent: data.aboutContent?.length ? data.aboutContent : hardcodedSiteSettings.aboutContent,
-        cvTitle: data.cvTitle || hardcodedSiteSettings.cvTitle,
-        cvContent: data.cvContent?.length ? data.cvContent : hardcodedSiteSettings.cvContent,
-        cvFileUrl: data.cvFileUrl,
+        aboutTitle: settings.aboutTitle || hardcodedSiteSettings.aboutTitle,
+        aboutContent: settings.aboutContent?.length ? settings.aboutContent : hardcodedSiteSettings.aboutContent,
+        cvTitle: settings.cvTitle || hardcodedSiteSettings.cvTitle,
+        cvContent: settings.cvContent?.length ? settings.cvContent : hardcodedSiteSettings.cvContent,
+        cvFileUrl: settings.cvFileUrl,
       };
     }
   } catch (error) {
