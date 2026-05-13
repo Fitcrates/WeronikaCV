@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 const ACCESS_COOKIE_NAME = "portfolio_access";
 const DRAFT_MODE_COOKIE_NAME = "__prerender_bypass";
+const SANITY_PREVIEW_HEADER = "x-sanity-presentation-preview";
 const PUBLIC_FILE_PATTERN = /\.[^/]+$/;
 
 function getAccessToken() {
@@ -20,8 +21,30 @@ function isPublicPath(pathname: string) {
   );
 }
 
+function isSanityPresentationPreview(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+
+  return (
+    searchParams.has("sanity-preview-perspective") ||
+    searchParams.has("sanity-preview-secret") ||
+    request.cookies.has("sanity-preview-perspective")
+  );
+}
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+  const isPreview = isSanityPresentationPreview(request);
+
+  if (isPreview) {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set(SANITY_PREVIEW_HEADER, "1");
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
 
   if (isPublicPath(pathname)) {
     return NextResponse.next();

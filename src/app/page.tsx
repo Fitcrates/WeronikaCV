@@ -3,7 +3,7 @@ import Hero from "@/components/Hero";
 import ProjectGrid from "@/components/ProjectGrid";
 import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/site";
-import { draftMode } from "next/headers";
+import { isSanityPreviewRequest } from "@/sanity/preview";
 
 export async function generateMetadata() {
   const settings = await getSiteSettings();
@@ -15,15 +15,15 @@ export async function generateMetadata() {
 }
 
 export default async function Home() {
-  const { isEnabled } = await draftMode();
-  const settings = await getSiteSettings(isEnabled);
+  const isPreview = await isSanityPreviewRequest();
+  const settings = await getSiteSettings(isPreview);
 
   return (
     <>
       <Header contact={settings.contact} />
       <main>
         <Hero settings={settings} />
-        <ProjectGrid title={settings.projectsTitle} preview={isEnabled} />
+        <ProjectGrid title={settings.projectsTitle} preview={isPreview} />
       </main>
       <Footer />
     </>

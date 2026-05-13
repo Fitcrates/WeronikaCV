@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Host_Grotesk } from "next/font/google";
-import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
 import { SanityLive } from "@/sanity/live";
+import { isSanityPreviewRequest } from "@/sanity/preview";
 import "./globals.css";
 
 const hostGrotesk = Host_Grotesk({
@@ -22,13 +22,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { isEnabled } = await draftMode();
+  const isPreview = await isSanityPreviewRequest();
 
   return (
     <html lang="pl" className={hostGrotesk.className}>
       <body>
         {children}
-        {isEnabled && <VisualEditing />}
+        {isPreview && <VisualEditing />}
         <SanityLive />
       </body>
     </html>

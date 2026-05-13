@@ -110,6 +110,34 @@ a {
   opacity: 0.4;
 }
 
+.header__language {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.header__language span {
+  opacity: 0.38;
+}
+
+.header__language .header__language-active {
+  opacity: 1;
+}
+
+.header__language:disabled {
+  cursor: wait;
+}
+
+.header__language--mobile {
+  gap: 10px;
+  font-size: 18px;
+}
+
 /* Hamburger Menu Button */
 .header__hamburger {
   display: none;

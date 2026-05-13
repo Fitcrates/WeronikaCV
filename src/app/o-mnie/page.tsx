@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/site";
-import { draftMode } from "next/headers";
+import { isSanityPreviewRequest } from "@/sanity/preview";
 
 export async function generateMetadata() {
   const settings = await getSiteSettings();
@@ -13,8 +13,8 @@ export async function generateMetadata() {
 }
 
 export default async function AboutPage() {
-  const { isEnabled } = await draftMode();
-  const settings = await getSiteSettings(isEnabled);
+  const isPreview = await isSanityPreviewRequest();
+  const settings = await getSiteSettings(isPreview);
 
   return (
     <>

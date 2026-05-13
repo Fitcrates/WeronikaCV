@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HoverPrefetchLink from "@/components/HoverPrefetchLink";
 import { getSiteSettings } from "@/lib/site";
-import { draftMode } from "next/headers";
+import { isSanityPreviewRequest } from "@/sanity/preview";
 
 /* Generate static params for all projects */
 export async function generateStaticParams() {
@@ -35,16 +35,16 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const { isEnabled } = await draftMode();
-  const project = await getProjectBySlug(slug, isEnabled);
-  const settings = await getSiteSettings(isEnabled);
+  const isPreview = await isSanityPreviewRequest();
+  const project = await getProjectBySlug(slug, isPreview);
+  const settings = await getSiteSettings(isPreview);
 
   if (!project) {
     notFound();
   }
 
   /* Find next project for navigation */
-  const projectsList = await getProjects(isEnabled);
+  const projectsList = await getProjects(isPreview);
   const currentIndex = projectsList.findIndex((p) => p.slug === slug);
   const nextProject = projectsList[(currentIndex + 1) % projectsList.length];
 
