@@ -1,6 +1,7 @@
 import { sanityFetch } from "@/sanity/live";
 import { urlForImage } from "@/sanity/lib/image";
-import { stegaClean } from "next-sanity";
+import { createDataAttribute, stegaClean } from "next-sanity";
+import { dataset, projectId } from "@/sanity/env";
 import type { Image } from "sanity";
 
 /* ============================================
@@ -23,6 +24,7 @@ export type GalleryAspectRatio = string;
 export interface GalleryImage {
   kind?: "image";
   src: string;
+  edit?: string;
   orientation: GalleryImageOrientation;
   aspectRatio?: GalleryAspectRatio;
   customWidthPx?: number;
@@ -37,6 +39,7 @@ export interface GalleryImage {
 export interface GalleryVideo {
   kind: "video";
   src: string;
+  edit?: string;
   poster?: string;
   aspectRatio?: GalleryAspectRatio;
   mimeType?: string;
@@ -47,10 +50,17 @@ export type GalleryImageSlot = GalleryMediaSlot;
 
 export interface GalleryRow {
   layout: GalleryLayout;
+  edit?: string;
   images: GalleryMediaSlot[];
 }
 
 export interface Project {
+  edit?: string;
+  titleEdit?: string;
+  descriptionEdit?: string;
+  scopeEdit?: string;
+  actionsEdit?: string;
+  yearEdit?: string;
   slug: string;
   title: string;
   year: string;
@@ -77,6 +87,7 @@ interface SanityGalleryImage extends Image {
 
 interface SanityGalleryImageWithRatio {
   _type?: "galleryImage";
+  _key?: string;
   image?: SanityGalleryImage;
   aspectRatio?: GalleryAspectRatio;
   customAspectRatio?: string;
@@ -88,10 +99,12 @@ interface SanityGalleryImageWithRatio {
 
 interface SanityGalleryEmptySlot {
   _type?: "galleryEmptySlot";
+  _key?: string;
 }
 
 interface SanityGalleryVideo {
   _type?: "galleryVideo";
+  _key?: string;
   video?: {
     asset?: {
       _ref?: string;
@@ -106,6 +119,7 @@ interface SanityGalleryVideo {
 }
 
 interface SanityGalleryBlock {
+  _key?: string;
   layout?: GalleryLayout;
   aspectRatio?: GalleryAspectRatio;
   customAspectRatio?: string;
@@ -120,6 +134,8 @@ interface SanityGalleryBlock {
 }
 
 interface SanityProject {
+  _id?: string;
+  _type?: "project";
   slug?: { current?: string };
   title?: string;
   year?: string;
@@ -199,6 +215,110 @@ export const hardcodedProjects: Project[] = [
   },
 ];
 
+const PROJECTS_QUERY = `*[_type == "project"] | order(order asc, _createdAt desc){
+  _id,
+  _type,
+  ...,
+  gallery[]{
+    _key,
+    layout,
+    aspectRatio,
+    customAspectRatio,
+    images[]{
+      ...,
+      image{
+        ...,
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions,
+            lqip
+          }
+        }
+      },
+      video{
+        asset->{
+          _id,
+          url,
+          mimeType
+        }
+      },
+      poster{
+        ...,
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions,
+            lqip
+          }
+        }
+      },
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions,
+          lqip
+        }
+      }
+    }
+  }
+}`;
+
+const PROJECT_BY_SLUG_QUERY = `*[_type == "project" && slug.current == $slug][0]{
+  _id,
+  _type,
+  ...,
+  gallery[]{
+    _key,
+    layout,
+    aspectRatio,
+    customAspectRatio,
+    images[]{
+      ...,
+      image{
+        ...,
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions,
+            lqip
+          }
+        }
+      },
+      video{
+        asset->{
+          _id,
+          url,
+          mimeType
+        }
+      },
+      poster{
+        ...,
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions,
+            lqip
+          }
+        }
+      },
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions,
+          lqip
+        }
+      }
+    }
+  }
+}`;
+
 function getImageOrientation(image: SanityGalleryImage): GalleryImageOrientation {
   const aspectRatio = image.asset?.metadata?.dimensions?.aspectRatio;
 
@@ -247,6 +367,21 @@ function getSanityFileUrl(file?: SanityGalleryVideo["video"]): string {
   }
 
   return stegaClean(asset.url || "");
+}
+
+function createProjectEdit(project: SanityProject, path: string) {
+  if (!project._id || !project._type || !path) {
+    return undefined;
+  }
+
+  return createDataAttribute({
+    baseUrl: "/studio",
+    dataset,
+    id: project._id,
+    path,
+    projectId,
+    type: project._type,
+  }).toString();
 }
 
 function isGalleryImageWithRatio(
@@ -344,7 +479,8 @@ function mapGalleryImage(
     | null
     | 0,
   blockAspectRatio?: GalleryAspectRatio,
-  blockCustomAspectRatio?: string
+  blockCustomAspectRatio?: string,
+  edit?: string
 ): GalleryMediaSlot {
   if (item && isGalleryVideo(item)) {
     const src = getSanityFileUrl(item.video);
@@ -356,6 +492,7 @@ function mapGalleryImage(
     return {
       kind: "video",
       src,
+      edit,
       poster: getSanityImageUrl(item.poster) || undefined,
       mimeType: item.video?.asset?.mimeType,
       aspectRatio: resolveAspectRatio(
@@ -388,6 +525,7 @@ function mapGalleryImage(
   return {
     kind: "image",
     src,
+    edit,
     orientation: getImageOrientation(image),
     aspectRatio: resolveAspectRatio(
       aspectRatio,
@@ -406,13 +544,18 @@ function mapGalleryImage(
 }
 
 function mapSanityProject(p: SanityProject): Project | undefined {
-  const slug = p.slug?.current;
+  const slug = stegaClean(p.slug?.current || "");
 
   if (!slug || !p.title) {
     return undefined;
   }
 
   return {
+    titleEdit: createProjectEdit(p, "title"),
+    descriptionEdit: createProjectEdit(p, "description"),
+    scopeEdit: createProjectEdit(p, "scope"),
+    actionsEdit: createProjectEdit(p, "actions"),
+    yearEdit: createProjectEdit(p, "year"),
     slug,
     title: p.title,
     year: p.year || "",
@@ -422,10 +565,35 @@ function mapSanityProject(p: SanityProject): Project | undefined {
     scope: p.scope || "",
     actions: p.actions || "",
     gallery: p.gallery
-      ? p.gallery.map((g) => ({
+      ? p.gallery.map((g, blockIndex) => ({
+          edit: createProjectEdit(
+            p,
+            g._key ? `gallery[_key=="${g._key}"]` : `gallery[${blockIndex}]`
+          ),
           layout: g.layout || "full",
           images: g.images
-            ? g.images.map((image) => mapGalleryImage(image, g.aspectRatio, g.customAspectRatio))
+            ? g.images.map((image, imageIndex) => {
+                const imageKey =
+                  image && typeof image === "object" && "_key" in image ? image._key : undefined;
+                const blockPath = g._key ? `gallery[_key=="${g._key}"]` : `gallery[${blockIndex}]`;
+                const imagePath = imageKey
+                  ? `${blockPath}.images[_key=="${imageKey}"]`
+                  : `${blockPath}.images[${imageIndex}]`;
+
+                return mapGalleryImage(
+                  image,
+                  g.aspectRatio,
+                  g.customAspectRatio,
+                  createProjectEdit(
+                    p,
+                    image && typeof image === "object" && "_type" in image && image._type === "galleryImage"
+                      ? `${imagePath}.image`
+                      : image && typeof image === "object" && "_type" in image && image._type === "galleryVideo"
+                        ? `${imagePath}.video`
+                        : imagePath
+                  )
+                );
+              })
             : []
         })).filter((g) => g.images.some(Boolean))
       : []
@@ -435,54 +603,7 @@ function mapSanityProject(p: SanityProject): Project | undefined {
 export async function getProjects(preview = false): Promise<Project[]> {
   try {
     const { data: sanityProjects } = await sanityFetch({
-      query: `*[_type == "project"] | order(order asc, _createdAt desc){
-      ...,
-      gallery[]{
-        layout,
-        aspectRatio,
-        customAspectRatio,
-        images[]{
-          ...,
-          image{
-            ...,
-            asset->{
-              _id,
-              url,
-              metadata {
-                dimensions,
-                lqip
-              }
-            }
-          },
-          video{
-            asset->{
-              _id,
-              url,
-              mimeType
-            }
-          },
-          poster{
-            ...,
-            asset->{
-              _id,
-              url,
-              metadata {
-                dimensions,
-                lqip
-              }
-            }
-          },
-          asset->{
-            _id,
-            url,
-            metadata {
-              dimensions,
-              lqip
-            }
-          }
-        }
-      }
-    }`,
+      query: PROJECTS_QUERY,
       perspective: preview ? "drafts" : "published",
       stega: preview,
       tags: ["project"],
@@ -509,51 +630,7 @@ export async function getProjects(preview = false): Promise<Project[]> {
 export async function getProjectBySlug(slug: string, preview = false): Promise<Project | undefined> {
   try {
     const { data: p } = await sanityFetch({
-      query: `*[_type == "project" && slug.current == $slug][0]{
-      ...,
-      gallery[]{
-        layout,
-        aspectRatio,
-        customAspectRatio,
-        images[]{
-          ...,
-          image{
-            ...,
-            asset->{
-              _id,
-              url,
-              metadata {
-                dimensions
-              }
-            }
-          },
-          video{
-            asset->{
-              _id,
-              url,
-              mimeType
-            }
-          },
-          poster{
-            ...,
-            asset->{
-              _id,
-              url,
-              metadata {
-                dimensions
-              }
-            }
-          },
-          asset->{
-            _id,
-            url,
-            metadata {
-              dimensions
-            }
-          }
-        }
-      }
-    }`,
+      query: PROJECT_BY_SLUG_QUERY,
       params: { slug },
       perspective: preview ? "drafts" : "published",
       stega: preview,

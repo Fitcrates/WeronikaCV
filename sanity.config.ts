@@ -1,7 +1,8 @@
-import { defineConfig } from 'sanity'
+import { defineConfig, type AssetSource } from 'sanity'
 import { deskTool } from 'sanity/desk'
 import { presentationTool } from 'sanity/presentation'
 import { visionTool } from '@sanity/vision'
+import { media, mediaAssetSource } from 'sanity-plugin-media'
 import { schema } from './src/sanity/schemaTypes'
 import { apiVersion, dataset, projectId } from './src/sanity/env'
 import { presentationLocations } from './src/sanity/presentation'
@@ -16,6 +17,13 @@ const previewOrigin =
 
 function getPreviewUrl(path = '/') {
   return new URL(path, previewOrigin).toString()
+}
+
+function preferMediaAssetSource(previousAssetSources: AssetSource[]) {
+  return [
+    mediaAssetSource,
+    ...previousAssetSources.filter((assetSource) => assetSource.name !== mediaAssetSource.name),
+  ]
 }
 
 export default defineConfig({
@@ -36,7 +44,19 @@ export default defineConfig({
         locations: presentationLocations,
       },
     }),
+    media({
+      creditLine: { enabled: true },
+      directUploads: true,
+    }),
     deskTool(),
     visionTool({ defaultApiVersion: apiVersion }),
   ],
+  form: {
+    image: {
+      assetSources: preferMediaAssetSource,
+    },
+    file: {
+      assetSources: preferMediaAssetSource,
+    },
+  },
 })

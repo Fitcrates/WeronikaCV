@@ -140,6 +140,7 @@ export default function ProjectGallery({ rows }: ProjectGalleryProps) {
                   <figure
                     key={`${rowIdx}-${imgIdx}`}
                     className={`gallery__item gallery__item--visible${media ? "" : " gallery__item--empty"}${hasCustomSize(media) ? " gallery__item--custom-size" : ""}`}
+                    data-sanity={media?.edit}
                     style={media ? getMediaFrameStyle(media) : undefined}
                   >
                     {media?.kind === "video" ? (

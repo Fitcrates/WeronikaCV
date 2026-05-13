@@ -20,6 +20,7 @@ const customAspectRatioField = defineField({
   title: 'Własny aspect ratio',
   type: 'string',
   description: 'Wpisz np. 7 / 5, 21 / 9, 1080 / 1350.',
+  fieldset: 'advanced',
   hidden: ({ parent }) => parent?.aspectRatio !== 'custom',
   validation: Rule => Rule.custom((value, context) => {
     if ((context.parent as { aspectRatio?: string })?.aspectRatio !== 'custom') {
@@ -37,6 +38,7 @@ const customImageSizeFields = [
     name: 'customWidthPx',
     title: 'Własna szerokość renderu (px)',
     type: 'number',
+    fieldset: 'advanced',
     description: 'Opcjonalnie. Maksymalnie 1200 px, czyli szerokość kontenera.',
     validation: Rule => Rule.min(1).max(1200).integer()
   }),
@@ -44,6 +46,7 @@ const customImageSizeFields = [
     name: 'customHeightPx',
     title: 'Własna wysokość renderu (px)',
     type: 'number',
+    fieldset: 'advanced',
     description: 'Opcjonalnie. Jeżeli podasz szerokość, podaj też wysokość.',
     validation: Rule => Rule.custom((value, context) => {
       const parent = context.parent as {
@@ -77,6 +80,13 @@ export const galleryBlockType = defineType({
   components: {
     input: GalleryBlockInput,
   },
+  fieldsets: [
+    {
+      name: 'advanced',
+      title: 'Zaawansowane kadrowanie',
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   fields: [
     defineField({
       name: 'layout',
@@ -103,6 +113,7 @@ export const galleryBlockType = defineType({
       type: 'string',
       description: 'Stosowane do wszystkich zdjęć i wideo w tym bloku. Pojedynczy element z własnym aspect ratio nadpisuje tę wartość.',
       initialValue: '4 / 3',
+      fieldset: 'advanced',
       options: {
         list: aspectRatioOptions,
         layout: 'dropdown'
@@ -116,18 +127,25 @@ export const galleryBlockType = defineType({
       name: 'images',
       title: 'Media',
       type: 'array',
-      description: 'Dodawaj zdjęcia, wideo albo pusty slot. Pozycje w tablicy są zachowywane w renderze.',
+      description: 'Najpierw wrzuć wiele plików w narzędziu Media, potem wybieraj je tutaj z biblioteki. Kolejność elementów jest kolejnością na stronie.',
       of: [
         {
           type: 'object',
           name: 'galleryImage',
-          title: 'Zdjęcie z proporcjami',
+          title: 'Zdjęcie',
+          fieldsets: [
+            {
+              name: 'advanced',
+              title: 'Zaawansowane ustawienia zdjęcia',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
           fields: [
             defineField({
               name: 'image',
               title: 'Zdjęcie',
               type: 'image',
-              description: 'Zostaw puste, jeżeli ten element ma być pustym miejscem w siatce.',
+              description: 'Wybierz z biblioteki Media albo wgraj pojedynczy plik. Do hurtowego uploadu użyj narzędzia Media w lewym menu Studio.',
               options: { hotspot: true }
             }),
             defineField({
@@ -135,6 +153,7 @@ export const galleryBlockType = defineType({
               title: 'Aspect ratio',
               type: 'string',
               initialValue: 'auto',
+              fieldset: 'advanced',
               options: {
                 list: aspectRatioOptions,
                 layout: 'dropdown'
@@ -147,6 +166,7 @@ export const galleryBlockType = defineType({
               title: 'Kadr poziomo (%)',
               type: 'number',
               initialValue: 50,
+              fieldset: 'advanced',
               hidden: true,
               validation: Rule => Rule.min(0).max(100)
             }),
@@ -155,6 +175,7 @@ export const galleryBlockType = defineType({
               title: 'Kadr pionowo (%)',
               type: 'number',
               initialValue: 50,
+              fieldset: 'advanced',
               hidden: true,
               validation: Rule => Rule.min(0).max(100)
             })
@@ -186,6 +207,13 @@ export const galleryBlockType = defineType({
           type: 'object',
           name: 'galleryVideo',
           title: 'Wideo',
+          fieldsets: [
+            {
+              name: 'advanced',
+              title: 'Zaawansowane ustawienia wideo',
+              options: { collapsible: true, collapsed: true },
+            },
+          ],
           fields: [
             defineField({
               name: 'video',
@@ -207,6 +235,7 @@ export const galleryBlockType = defineType({
               title: 'Aspect ratio',
               type: 'string',
               initialValue: 'auto',
+              fieldset: 'advanced',
               options: {
                 list: aspectRatioOptions,
                 layout: 'dropdown'

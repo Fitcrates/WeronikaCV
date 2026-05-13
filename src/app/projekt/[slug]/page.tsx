@@ -62,7 +62,10 @@ export default async function ProjectPage({
           </nav>
 
           {/* Title */}
-          <h1 className="project-page__title animate-fade-in">
+          <h1
+            className="project-page__title animate-fade-in"
+            data-sanity={project.titleEdit}
+          >
             {project.title}
           </h1>
 
@@ -72,26 +75,37 @@ export default async function ProjectPage({
               {project.scope && (
                 <>
                   <p className="project-page__meta-label">Zakres</p>
-                  <p className="project-page__meta-value">{project.scope}</p>
+                  <p className="project-page__meta-value" data-sanity={project.scopeEdit}>
+                    {project.scope}
+                  </p>
                 </>
               )}
               {project.actions && (
                 <>
                   <p className="project-page__meta-label">Działania</p>
-                  <p className="project-page__meta-value">{project.actions}</p>
+                  <p className="project-page__meta-value" data-sanity={project.actionsEdit}>
+                    {project.actions}
+                  </p>
                 </>
               )}
               {project.year && (
                 <>
                   <p className="project-page__meta-label">Rok</p>
-                  <p className="project-page__meta-value">{project.year}</p>
+                  <p className="project-page__meta-value" data-sanity={project.yearEdit}>
+                    {project.year}
+                  </p>
                 </>
               )}
             </div>
 
             <div>
               <p className="project-page__meta-label">O marce</p>
-              <p className="project-page__meta-value">{project.description}</p>
+              <p
+                className="project-page__meta-value"
+                data-sanity={project.descriptionEdit}
+              >
+                {project.description}
+              </p>
             </div>
           </div>
 
