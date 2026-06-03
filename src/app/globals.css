@@ -294,14 +294,40 @@ a {
   font-size: 14px;
 }
 
-/* Laptop+: stały rozmiar tytułu i overlap — twarze nie „podjeżdżają” przy ~1400–1778px */
+/*
+ * Laptop (≥1025px): px zamiast vw — kontener ma max 1200px, ale vw i tak
+ * zmieniał tytuł / overlap przy zwężaniu okna (np. 1774 → 1519px).
+ */
 @media (min-width: 1025px) {
   .hero__title {
-    font-size: clamp(61px, 3.45vw, 98px);
+    font-size: 66px;
   }
 
   .hero__content {
-    margin-top: calc(-26px - 1.54 * clamp(61px, 3.45vw, 98px));
+    margin-top: -128px;
+    gap: 120px;
+  }
+
+  .hero__bio {
+    margin-top: 156px;
+  }
+}
+
+/* Poniżej ~1900px viewport: delikatnie w dół (kompensacja „podskakiwania”) */
+@media (min-width: 1025px) and (max-width: 1900px) {
+  .faces-container {
+    margin-top: clamp(0px, (1900px - 100vw) * 0.12, 80px);
+  }
+}
+
+/* Bardzo szerokie monitory — skalowanie tytułu */
+@media (min-width: 1920px) {
+  .hero__title {
+    font-size: clamp(66px, 3.45vw, 98px);
+  }
+
+  .hero__content {
+    margin-top: calc(-26px - 1.54 * clamp(66px, 3.45vw, 98px));
   }
 }
 
