@@ -10,9 +10,9 @@ export default function Hero({ settings }: HeroProps) {
     <section className="hero">
       <div className="container">
         {/* Full-width title */}
-        <h1 className="hero__title animate-fade-in">
+        <h1 className="hero__title animate-fade-in" data-sanity={settings.heroTitleEdit}>
           {settings.heroTitleLines.map((line, index) => (
-            <span key={line}>
+            <span key={`${line}-${index}`} data-sanity={settings.heroTitleLineEdits?.[index]}>
               {line}
               {index < settings.heroTitleLines.length - 1 && <br />}
             </span>
@@ -22,9 +22,13 @@ export default function Hero({ settings }: HeroProps) {
         {/* Bio left + Faces right */}
         <div className="hero__content">
           <div className="hero__bio animate-fade-in-delay-1">
-            <p className="hero__greeting">{settings.heroGreeting}</p>
-            {settings.heroBio.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+            <p className="hero__greeting" data-sanity={settings.heroGreetingEdit}>
+              {settings.heroGreeting}
+            </p>
+            {settings.heroBio.map((paragraph, index) => (
+              <p key={`${paragraph}-${index}`} data-sanity={settings.heroBioEdits?.[index]}>
+                {paragraph}
+              </p>
             ))}
           </div>
 

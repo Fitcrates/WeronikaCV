@@ -21,10 +21,14 @@ export default async function CvPage() {
       <Header contact={settings.contact} />
       <main className="content-page">
         <div className="container content-page__inner">
-          <h1 className="content-page__title animate-fade-in">{settings.cvTitle}</h1>
+          <h1 className="content-page__title animate-fade-in" data-sanity={settings.cvTitleEdit}>
+            {settings.cvTitle}
+          </h1>
           <div className="content-page__body animate-fade-in-delay-1">
-            {settings.cvContent.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+            {settings.cvContent.map((paragraph, index) => (
+              <p key={`${paragraph}-${index}`} data-sanity={settings.cvContentEdits?.[index]}>
+                {paragraph}
+              </p>
             ))}
             {settings.cvFileUrl && (
               <p>

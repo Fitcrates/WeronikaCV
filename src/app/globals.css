@@ -196,14 +196,24 @@ a {
   position: absolute;
   top: 16px;
   right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   background: none;
-  border: none;
-  font-size: 28px;
+  border: 1px solid var(--foreground);
+  border-radius: 100px;
   cursor: pointer;
   color: var(--foreground);
-  padding: 8px;
-  line-height: 1;
+  padding: 0;
   transition: opacity 0.3s ease;
+}
+
+.header__mobile-close span {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .header__mobile-close:hover {
@@ -211,7 +221,7 @@ a {
 }
 
 .header__nav--mobile a,
-.header__nav--mobile button {
+.header__nav--mobile button:not(.header__mobile-close) {
   font-size: 18px;
   font-weight: 500;
   letter-spacing: 0.05em;
@@ -227,7 +237,7 @@ a {
 }
 
 .header__nav--mobile a:hover,
-.header__nav--mobile button:hover {
+.header__nav--mobile button:not(.header__mobile-close):hover {
   opacity: 0.4;
 }
 
@@ -275,7 +285,7 @@ a {
 
 .hero__bio {
   max-width: 380px;
-  margin-top: 156px;
+  margin-top: 188px;
 }
 
 .hero__bio p {
@@ -309,7 +319,7 @@ a {
   }
 
   .hero__bio {
-    margin-top: 156px;
+    margin-top: 188px;
   }
 }
 
@@ -338,7 +348,7 @@ a {
 
   .hero__title {
     font-size: clamp(32px, 10vw, 48px);
-    text-align: center;
+    text-align: left;
     width: 100%;
     margin-bottom: 20px;
   }
@@ -366,7 +376,7 @@ a {
     order: 2;
     margin-top: 0;
     max-width: 100%;
-    text-align: center;
+    text-align: left;
   }
 
   .hero__greeting {
@@ -597,15 +607,15 @@ a {
   font-size: clamp(32px, 5vw, 56px);
   font-weight: 700;
   line-height: 1.05;
-  margin-bottom: 28px;
+  margin-bottom: 60px;
 }
 
 .project-page__meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
-  margin-bottom: 48px;
-  padding-bottom: 48px;
+  margin-bottom: 52px;
+  padding-bottom: 52px;
   border-bottom: 1px solid #e0e0e0;
 }
 

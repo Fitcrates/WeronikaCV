@@ -131,7 +131,7 @@ export default function Header({ contact }: HeaderProps) {
                 onClick={closeMobileMenu}
                 aria-label="Zamknij menu"
               >
-                ×
+                <span aria-hidden="true">x</span>
               </button>
               <motion.div custom={0} variants={itemVariants}>
                 <PreviewAwareLink href="/#projekty" onClick={closeMobileMenu}>

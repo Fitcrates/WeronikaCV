@@ -23,7 +23,11 @@ export default async function Home() {
       <Header contact={settings.contact} />
       <main>
         <Hero settings={settings} />
-        <ProjectGrid title={settings.projectsTitle} preview={isPreview} />
+        <ProjectGrid
+          title={settings.projectsTitle}
+          titleEdit={settings.projectsTitleEdit}
+          preview={isPreview}
+        />
       </main>
       <Footer />
     </>

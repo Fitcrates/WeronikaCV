@@ -658,19 +658,120 @@
     "title": "Blok Galerii"
   },
   {
+    "initialValue": {
+      "title": "Weronika Grzesiowska",
+      "description": "Portfolio projektowe Weroniki Grzesiowskiej - grafika, ilustracja, branding.",
+      "heroTitleLines": [
+        "Weronika",
+        "Grzesiowska"
+      ],
+      "heroGreeting": "Cześć! ;-)",
+      "heroBio": [
+        "Jestem absolwentką komunikacji wizerunkowej na UWr i projektantką z Wrocławia. Na co dzień zajmuję się grafiką komputerową i tworzeniem komunikacji.",
+        "Lubię gołębie."
+      ],
+      "projectsTitle": "Projekty",
+      "contactName": "Weronika Grzesiowska",
+      "contactEmail": "weronikagrzesiowska@gmail.com",
+      "contactPhone": "+48 732 252 434",
+      "aboutTitle": "O mnie",
+      "aboutContent": [
+        "Jestem projektantką z Wrocławia. Zajmuję się grafiką komputerową, identyfikacją wizualną i komunikacją marek.",
+        "Ta treść jest placeholderem developerskim i może zostać zastąpiona w Sanity Studio."
+      ],
+      "cvTitle": "CV",
+      "cvContent": [
+        "CV może być zarządzane z poziomu Sanity jako opis tekstowy oraz opcjonalny plik PDF."
+      ]
+    },
     "fields": [
       {
         "initialValue": "Weronika Grzesiowska",
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
         "name": "title",
         "type": "string",
         "title": "Tytuł strony"
       },
       {
+        "rows": 3,
+        "initialValue": "Portfolio projektowe Weroniki Grzesiowskiej - grafika, ilustracja, branding.",
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
         "name": "description",
         "type": "text",
         "title": "Opis SEO"
       },
       {
+        "initialValue": [
+          "Weronika",
+          "Grzesiowska"
+        ],
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 1
+              }
+            ]
+          }
+        ],
+        "description": "Każdy element tablicy renderuje się jako osobna linia nagłówka.",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "heroTitleLines",
+        "type": "array",
+        "title": "Nagłówek hero"
+      },
+      {
+        "initialValue": "Cześć! ;-)",
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "heroGreeting",
+        "type": "string",
+        "title": "Przywitanie w hero"
+      },
+      {
+        "initialValue": [
+          "Jestem absolwentką komunikacji wizerunkowej na UWr i projektantką z Wrocławia. Na co dzień zajmuję się grafiką komputerową i tworzeniem komunikacji.",
+          "Lubię gołębie."
+        ],
         "validation": [
           {
             "level": "error",
@@ -688,21 +789,7 @@
         ],
         "of": [
           {
-            "type": "string"
-          }
-        ],
-        "name": "heroTitleLines",
-        "type": "array",
-        "title": "Nagłówek hero"
-      },
-      {
-        "name": "heroGreeting",
-        "type": "string",
-        "title": "Przywitanie w hero"
-      },
-      {
-        "of": [
-          {
+            "rows": 3,
             "type": "text"
           }
         ],
@@ -712,34 +799,64 @@
       },
       {
         "initialValue": "Projekty",
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
         "name": "projectsTitle",
         "type": "string",
         "title": "Tytuł sekcji projektów"
       },
       {
+        "initialValue": "Weronika Grzesiowska",
         "name": "contactName",
         "type": "string",
         "title": "Kontakt: imię i nazwisko"
       },
       {
+        "initialValue": "weronikagrzesiowska@gmail.com",
         "name": "contactEmail",
         "type": "string",
         "title": "Kontakt: email"
       },
       {
+        "initialValue": "+48 732 252 434",
         "name": "contactPhone",
         "type": "string",
         "title": "Kontakt: telefon"
       },
       {
         "initialValue": "O mnie",
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
         "name": "aboutTitle",
         "type": "string",
         "title": "O mnie: tytuł"
       },
       {
+        "initialValue": [
+          "Jestem projektantką z Wrocławia. Zajmuję się grafiką komputerową, identyfikacją wizualną i komunikacją marek.",
+          "Ta treść jest placeholderem developerskim i może zostać zastąpiona w Sanity Studio."
+        ],
         "of": [
           {
+            "rows": 4,
             "type": "text"
           }
         ],
@@ -749,13 +866,28 @@
       },
       {
         "initialValue": "CV",
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
         "name": "cvTitle",
         "type": "string",
         "title": "CV: tytuł"
       },
       {
+        "initialValue": [
+          "CV może być zarządzane z poziomu Sanity jako opis tekstowy oraz opcjonalny plik PDF."
+        ],
         "of": [
           {
+            "rows": 4,
             "type": "text"
           }
         ],

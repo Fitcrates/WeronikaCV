@@ -84,9 +84,9 @@ export default function ContactModal({ isOpen, onClose, contact }: ContactModalP
             </button>
             <h2 className="modal-title">Kontakt</h2>
             <div className="modal-info">
-              <p><strong>Imię i Nazwisko:</strong> {contact.name}</p>
-              <p><strong>Email:</strong> <a href={`mailto:${contact.email}`}>{contact.email}</a></p>
-              <p><strong>Telefon:</strong> <a href={`tel:${contact.phone.replaceAll(" ", "")}`}>{contact.phone}</a></p>
+              <p data-sanity={contact.nameEdit}><strong>Imię i Nazwisko:</strong> {contact.name}</p>
+              <p data-sanity={contact.emailEdit}><strong>Email:</strong> <a href={`mailto:${contact.email}`}>{contact.email}</a></p>
+              <p data-sanity={contact.phoneEdit}><strong>Telefon:</strong> <a href={`tel:${contact.phone.replaceAll(" ", "")}`}>{contact.phone}</a></p>
             </div>
           </motion.div>
         </motion.div>

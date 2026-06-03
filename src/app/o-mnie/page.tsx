@@ -21,10 +21,14 @@ export default async function AboutPage() {
       <Header contact={settings.contact} />
       <main className="content-page">
         <div className="container content-page__inner">
-          <h1 className="content-page__title animate-fade-in">{settings.aboutTitle}</h1>
+          <h1 className="content-page__title animate-fade-in" data-sanity={settings.aboutTitleEdit}>
+            {settings.aboutTitle}
+          </h1>
           <div className="content-page__body animate-fade-in-delay-1">
-            {settings.aboutContent.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+            {settings.aboutContent.map((paragraph, index) => (
+              <p key={`${paragraph}-${index}`} data-sanity={settings.aboutContentEdits?.[index]}>
+                {paragraph}
+              </p>
             ))}
           </div>
         </div>
