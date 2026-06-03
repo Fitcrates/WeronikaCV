@@ -294,6 +294,17 @@ a {
   font-size: 14px;
 }
 
+/* Laptop+: stały rozmiar tytułu i overlap — twarze nie „podjeżdżają” przy ~1400–1778px */
+@media (min-width: 1025px) {
+  .hero__title {
+    font-size: clamp(61px, 3.45vw, 98px);
+  }
+
+  .hero__content {
+    margin-top: calc(-26px - 1.54 * clamp(61px, 3.45vw, 98px));
+  }
+}
+
 @media (max-width: 768px) {
   .hero {
     padding: 32px 0 40px;
