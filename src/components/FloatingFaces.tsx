@@ -20,6 +20,9 @@ type FaceStyle = CSSProperties & {
   "--face-rotate": string;
 };
 
+const FACE_IMAGE_WIDTH = 400;
+const FACE_IMAGE_HEIGHT = 518;
+
 const facesConfig: FaceConfig[] = [
   {
     id: 1,
@@ -78,11 +81,16 @@ export default function FloatingFaces() {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      return;
+    }
 
     let mouseX = -1000;
     let mouseY = -1000;
     let isHovering = false;
-    let animationFrameId: number;
+    let animationFrameId: number | undefined;
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
@@ -151,12 +159,14 @@ export default function FloatingFaces() {
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("mouseenter", handleMouseEnter);
       container.removeEventListener("mouseleave", handleMouseLeave);
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
   }, []);
 
   return (
-    <div ref={containerRef} className="faces-container">
+    <div ref={containerRef} className="faces-container" aria-hidden="true">
       {facesConfig.map((face, index) => (
         <div
           key={face.id}
@@ -182,12 +192,13 @@ export default function FloatingFaces() {
           >
             <Image
               src="/images/face.png"
-              alt="Twarz"
-              width={face.desktop.width}
-              height={Math.round(face.desktop.width * 1.295)}
+              alt=""
+              width={FACE_IMAGE_WIDTH}
+              height={FACE_IMAGE_HEIGHT}
               style={{ width: "100%", height: "auto" }}
-              preload={index < 3}
-              loading={index < 3 ? undefined : "eager"}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              unoptimized
             />
           </div>
         </div>

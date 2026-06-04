@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CvContent from "@/components/CvContent";
 import { getSiteSettings } from "@/lib/site";
 import { isSanityPreviewRequest } from "@/sanity/preview";
 
@@ -21,23 +22,7 @@ export default async function CvPage() {
       <Header contact={settings.contact} />
       <main className="content-page">
         <div className="container content-page__inner">
-          <h1 className="content-page__title animate-fade-in" data-sanity={settings.cvTitleEdit}>
-            {settings.cvTitle}
-          </h1>
-          <div className="content-page__body animate-fade-in-delay-1">
-            {settings.cvContent.map((paragraph, index) => (
-              <p key={`${paragraph}-${index}`} data-sanity={settings.cvContentEdits?.[index]}>
-                {paragraph}
-              </p>
-            ))}
-            {settings.cvFileUrl && (
-              <p>
-                <a className="content-page__link" href={settings.cvFileUrl} target="_blank" rel="noreferrer">
-                  Pobierz CV
-                </a>
-              </p>
-            )}
-          </div>
+          <CvContent settings={settings} />
         </div>
       </main>
       <Footer />

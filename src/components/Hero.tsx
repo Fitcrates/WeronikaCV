@@ -1,5 +1,6 @@
 import FloatingFaces from "./FloatingFaces";
 import type { SiteSettings } from "@/lib/site";
+import { preventOrphans } from "@/lib/typography";
 
 interface HeroProps {
   settings: SiteSettings;
@@ -13,7 +14,7 @@ export default function Hero({ settings }: HeroProps) {
         <h1 className="hero__title animate-fade-in" data-sanity={settings.heroTitleEdit}>
           {settings.heroTitleLines.map((line, index) => (
             <span key={`${line}-${index}`} data-sanity={settings.heroTitleLineEdits?.[index]}>
-              {line}
+              {preventOrphans(line)}
               {index < settings.heroTitleLines.length - 1 && <br />}
             </span>
           ))}
@@ -23,11 +24,11 @@ export default function Hero({ settings }: HeroProps) {
         <div className="hero__content">
           <div className="hero__bio animate-fade-in-delay-1">
             <p className="hero__greeting" data-sanity={settings.heroGreetingEdit}>
-              {settings.heroGreeting}
+              {preventOrphans(settings.heroGreeting)}
             </p>
             {settings.heroBio.map((paragraph, index) => (
               <p key={`${paragraph}-${index}`} data-sanity={settings.heroBioEdits?.[index]}>
-                {paragraph}
+                {preventOrphans(paragraph)}
               </p>
             ))}
           </div>

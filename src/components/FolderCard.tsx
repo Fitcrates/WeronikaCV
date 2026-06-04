@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Project } from "@/lib/projects";
 import HoverPrefetchLink from "@/components/HoverPrefetchLink";
+import { preventOrphans } from "@/lib/typography";
 
 interface FolderCardProps {
   project: Project;
@@ -12,7 +13,7 @@ export default function FolderCard({ project }: FolderCardProps) {
       <div className="folder-card__thumbnail-wrap">
         <Image
           src={project.thumbnail}
-          alt={project.title}
+          alt=""
           width={400}
           height={300}
           className="folder-card__thumbnail"
@@ -35,7 +36,7 @@ export default function FolderCard({ project }: FolderCardProps) {
         </svg>
       </div>
 
-      <span className="folder-card__name">{project.title}</span>
+      <span className="folder-card__name">{preventOrphans(project.title)}</span>
       <span className="folder-card__arrow" aria-hidden="true">
         <svg
           viewBox="0 0 97 64"

@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import HoverPrefetchLink from "@/components/HoverPrefetchLink";
 import PreviewAwareLink from "@/components/PreviewAwareLink";
 import { getSiteSettings } from "@/lib/site";
+import { preventOrphans } from "@/lib/typography";
 import { isSanityPreviewRequest } from "@/sanity/preview";
 
 /* Generate static params for all projects */
@@ -66,7 +67,7 @@ export default async function ProjectPage({
             className="project-page__title animate-fade-in"
             data-sanity={project.titleEdit}
           >
-            {project.title}
+            {preventOrphans(project.title)}
           </h1>
 
           {/* Meta info */}
@@ -76,7 +77,7 @@ export default async function ProjectPage({
                 <>
                   <p className="project-page__meta-label">Zakres</p>
                   <p className="project-page__meta-value" data-sanity={project.scopeEdit}>
-                    {project.scope}
+                    {preventOrphans(project.scope)}
                   </p>
                 </>
               )}
@@ -84,7 +85,7 @@ export default async function ProjectPage({
                 <>
                   <p className="project-page__meta-label">Działania</p>
                   <p className="project-page__meta-value" data-sanity={project.actionsEdit}>
-                    {project.actions}
+                    {preventOrphans(project.actions)}
                   </p>
                 </>
               )}
@@ -104,7 +105,7 @@ export default async function ProjectPage({
                 className="project-page__meta-value"
                 data-sanity={project.descriptionEdit}
               >
-                {project.description}
+                {preventOrphans(project.description)}
               </p>
             </div>
           </div>

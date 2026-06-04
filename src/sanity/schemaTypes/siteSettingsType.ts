@@ -22,6 +22,10 @@ const defaultSiteSettings = {
   cvContent: [
     'CV może być zarządzane z poziomu Sanity jako opis tekstowy oraz opcjonalny plik PDF.',
   ],
+  cvTitleEn: 'CV',
+  cvContentEn: [
+    'The English CV can be managed in Sanity as text content and an optional PDF file.',
+  ],
 };
 
 export const siteSettingsType = defineType({
@@ -147,6 +151,28 @@ export const siteSettingsType = defineType({
     defineField({
       name: 'cvFile',
       title: 'CV: plik PDF',
+      type: 'file',
+      group: 'cv',
+      options: { accept: '.pdf' },
+    }),
+    defineField({
+      name: 'cvTitleEn',
+      title: 'CV ENG: tytuĹ‚',
+      type: 'string',
+      group: 'cv',
+      initialValue: defaultSiteSettings.cvTitleEn,
+    }),
+    defineField({
+      name: 'cvContentEn',
+      title: 'CV ENG: treĹ›Ä‡',
+      type: 'array',
+      group: 'cv',
+      of: [{ type: 'text', rows: 4 }],
+      initialValue: defaultSiteSettings.cvContentEn,
+    }),
+    defineField({
+      name: 'cvFileEn',
+      title: 'CV ENG: plik PDF',
       type: 'file',
       group: 'cv',
       options: { accept: '.pdf' },

@@ -23,6 +23,8 @@ export interface SiteSettings {
   aboutContentEdits?: (string | undefined)[];
   cvTitleEdit?: string;
   cvContentEdits?: (string | undefined)[];
+  cvTitleEnEdit?: string;
+  cvContentEnEdits?: (string | undefined)[];
   title: string;
   description: string;
   heroTitleLines: string[];
@@ -35,6 +37,9 @@ export interface SiteSettings {
   cvTitle: string;
   cvContent: string[];
   cvFileUrl?: string;
+  cvTitleEn: string;
+  cvContentEn: string[];
+  cvFileEnUrl?: string;
 }
 
 interface SanitySiteSettings {
@@ -54,6 +59,9 @@ interface SanitySiteSettings {
   cvTitle?: string;
   cvContent?: string[];
   cvFileUrl?: string;
+  cvTitleEn?: string;
+  cvContentEn?: string[];
+  cvFileEnUrl?: string;
 }
 
 export const hardcodedSiteSettings: SiteSettings = {
@@ -79,6 +87,10 @@ export const hardcodedSiteSettings: SiteSettings = {
   cvTitle: "CV",
   cvContent: [
     "CV może być zarządzane z poziomu Sanity jako opis tekstowy oraz opcjonalny plik PDF.",
+  ],
+  cvTitleEn: "CV",
+  cvContentEn: [
+    "The English CV can be managed in Sanity as text content and an optional PDF file.",
   ],
 };
 
@@ -120,7 +132,10 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
       aboutContent,
       cvTitle,
       cvContent,
-      "cvFileUrl": cvFile.asset->url
+      "cvFileUrl": cvFile.asset->url,
+      cvTitleEn,
+      cvContentEn,
+      "cvFileEnUrl": cvFileEn.asset->url
     }`,
       perspective: preview ? undefined : "published",
       stega: preview ? undefined : false,
@@ -138,6 +153,9 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
         ? settings.aboutContent
         : hardcodedSiteSettings.aboutContent;
       const cvContent = settings.cvContent?.length ? settings.cvContent : hardcodedSiteSettings.cvContent;
+      const cvContentEn = settings.cvContentEn?.length
+        ? settings.cvContentEn
+        : hardcodedSiteSettings.cvContentEn;
 
       return {
         titleEdit: createSiteSettingsEdit(settings, "title"),
@@ -151,6 +169,8 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
         aboutContentEdits: createArrayEditAttributes(settings, "aboutContent", aboutContent),
         cvTitleEdit: createSiteSettingsEdit(settings, "cvTitle"),
         cvContentEdits: createArrayEditAttributes(settings, "cvContent", cvContent),
+        cvTitleEnEdit: createSiteSettingsEdit(settings, "cvTitleEn"),
+        cvContentEnEdits: createArrayEditAttributes(settings, "cvContentEn", cvContentEn),
         title: settings.title || hardcodedSiteSettings.title,
         description: settings.description || hardcodedSiteSettings.description,
         heroTitleLines,
@@ -170,6 +190,9 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
         cvTitle: settings.cvTitle || hardcodedSiteSettings.cvTitle,
         cvContent,
         cvFileUrl: settings.cvFileUrl,
+        cvTitleEn: settings.cvTitleEn || hardcodedSiteSettings.cvTitleEn,
+        cvContentEn,
+        cvFileEnUrl: settings.cvFileEnUrl,
       };
     }
   } catch (error) {

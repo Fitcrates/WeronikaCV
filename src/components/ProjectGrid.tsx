@@ -1,5 +1,6 @@
 import { getProjects } from "@/lib/projects";
 import FolderCard from "./FolderCard";
+import { preventOrphans } from "@/lib/typography";
 
 interface ProjectGridProps {
   title: string;
@@ -14,7 +15,7 @@ export default async function ProjectGrid({ title, titleEdit, preview = false }:
     <section id="projekty" className="projects-section">
       <div className="container">
         <h2 className="projects-section__title" data-sanity={titleEdit}>
-          {title}
+          {preventOrphans(title)}
         </h2>
         <div className="projects-grid animate-fade-in-delay-3">
           {projects.map((project) => (

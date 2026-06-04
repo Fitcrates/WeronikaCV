@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getSiteSettings } from "@/lib/site";
+import { preventOrphans } from "@/lib/typography";
 import { isSanityPreviewRequest } from "@/sanity/preview";
 
 export async function generateMetadata() {
@@ -22,12 +23,12 @@ export default async function AboutPage() {
       <main className="content-page">
         <div className="container content-page__inner">
           <h1 className="content-page__title animate-fade-in" data-sanity={settings.aboutTitleEdit}>
-            {settings.aboutTitle}
+            {preventOrphans(settings.aboutTitle)}
           </h1>
           <div className="content-page__body animate-fade-in-delay-1">
             {settings.aboutContent.map((paragraph, index) => (
               <p key={`${paragraph}-${index}`} data-sanity={settings.aboutContentEdits?.[index]}>
-                {paragraph}
+                {preventOrphans(paragraph)}
               </p>
             ))}
           </div>

@@ -16,6 +16,7 @@ export default function Header({ contact }: HeaderProps) {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { language, isTranslating, toggleLanguage } = useLanguage();
+  const mobileMenuId = "site-mobile-menu";
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -88,8 +89,11 @@ export default function Header({ contact }: HeaderProps) {
           </nav>
 
           <button
+            type="button"
             className="header__hamburger"
             onClick={toggleMobileMenu}
+            aria-controls={mobileMenuId}
+            aria-expanded={isMobileMenuOpen}
             aria-label={isMobileMenuOpen ? "Zamknij menu" : "Otwórz menu"}
           >
             <motion.span
@@ -120,7 +124,9 @@ export default function Header({ contact }: HeaderProps) {
               onClick={closeMobileMenu}
             />
             <motion.nav
+              id={mobileMenuId}
               className="header__nav--mobile"
+              aria-label="Menu mobilne"
               variants={menuVariants}
               initial="closed"
               animate="open"
