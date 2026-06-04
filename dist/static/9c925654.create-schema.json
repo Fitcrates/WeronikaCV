@@ -679,6 +679,7 @@
         "Jestem projektantką z Wrocławia. Zajmuję się grafiką komputerową, identyfikacją wizualną i komunikacją marek.",
         "Ta treść jest placeholderem developerskim i może zostać zastąpiona w Sanity Studio."
       ],
+      "aboutImageAlt": "Weronika Grzesiowska z aparatem",
       "cvTitle": "CV",
       "cvContent": [
         "CV może być zarządzane z poziomu Sanity jako opis tekstowy oraz opcjonalne pliki PDF."
@@ -863,6 +864,22 @@
         "name": "aboutContent",
         "type": "array",
         "title": "O mnie: treść"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "description": "Zdjęcie wyświetlane obok tekstu na stronie O mnie.",
+        "name": "aboutImage",
+        "type": "image",
+        "title": "O mnie: zdjęcie"
+      },
+      {
+        "initialValue": "Weronika Grzesiowska z aparatem",
+        "description": "Krótki opis zdjęcia dla dostępności.",
+        "name": "aboutImageAlt",
+        "type": "string",
+        "title": "O mnie: opis zdjęcia"
       },
       {
         "initialValue": "CV",

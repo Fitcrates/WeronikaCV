@@ -22,30 +22,38 @@ export default async function CvPage() {
       <Header contact={settings.contact} />
       <main className="content-page">
         <div className="container content-page__inner">
-          <h1 className="content-page__title animate-fade-in" data-sanity={settings.cvTitleEdit}>
+          <h1 className="content-page__title animate-fade-in" 
+          data-sanity={settings.cvTitleEdit}
+          
+          >
             {preventOrphans(settings.cvTitle)}
           </h1>
           <div className="content-page__body animate-fade-in-delay-1">
             {settings.cvContent.map((paragraph, index) => (
-              <p key={`${paragraph}-${index}`} data-sanity={settings.cvContentEdits?.[index]}>
+              <p key={`${paragraph}-${index}`} 
+              data-sanity={settings.cvContentEdits?.[index]}
+              style={{ marginBottom: 48 }}>
                 {preventOrphans(paragraph)}
               </p>
             ))}
-            {(settings.cvFileUrl || settings.cvFileEnUrl) && (
-              <p>
-                {settings.cvFileUrl && (
+            <div className="content-page__downloads">
+              {settings.cvFileUrl && (
+                <p>
+                  Pobierz wersję:{" "}
                   <a className="content-page__link" href={settings.cvFileUrl} target="_blank" rel="noreferrer">
-                    Pobierz wersję polską
+                    polską
                   </a>
-                )}
-                {settings.cvFileUrl && settings.cvFileEnUrl && <br />}
-                {settings.cvFileEnUrl && (
+                </p>
+              )}
+              {settings.cvFileEnUrl && (
+                <p>
+                  Pobierz wersję:{" "}
                   <a className="content-page__link" href={settings.cvFileEnUrl} target="_blank" rel="noreferrer">
-                    Pobierz wersję angielską
+                    angielską
                   </a>
-                )}
-              </p>
-            )}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </main>

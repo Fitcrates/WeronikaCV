@@ -18,6 +18,7 @@ const defaultSiteSettings = {
     'Jestem projektantką z Wrocławia. Zajmuję się grafiką komputerową, identyfikacją wizualną i komunikacją marek.',
     'Ta treść jest placeholderem developerskim i może zostać zastąpiona w Sanity Studio.',
   ],
+  aboutImageAlt: 'Weronika Grzesiowska z aparatem',
   cvTitle: 'CV',
   cvContent: [
     'CV może być zarządzane z poziomu Sanity jako opis tekstowy oraz opcjonalne pliki PDF.',
@@ -127,6 +128,22 @@ export const siteSettingsType = defineType({
       group: 'about',
       of: [{ type: 'text', rows: 4 }],
       initialValue: defaultSiteSettings.aboutContent,
+    }),
+    defineField({
+      name: 'aboutImage',
+      title: 'O mnie: zdjęcie',
+      type: 'image',
+      group: 'about',
+      description: 'Zdjęcie wyświetlane obok tekstu na stronie O mnie.',
+      options: { hotspot: true },
+    }),
+    defineField({
+      name: 'aboutImageAlt',
+      title: 'O mnie: opis zdjęcia',
+      type: 'string',
+      group: 'about',
+      description: 'Krótki opis zdjęcia dla dostępności.',
+      initialValue: defaultSiteSettings.aboutImageAlt,
     }),
     defineField({
       name: 'cvTitle',

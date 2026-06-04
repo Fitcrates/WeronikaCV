@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-06-04T10:17:02.861Z",
+  "createdAt": "2026-06-04T11:26:54.127Z",
   "studioVersion": "5.24.0",
   "version": 3,
   "workspaces": [
@@ -13,7 +13,7 @@
       },
       "name": "default",
       "projectId": "fzfmzmfr",
-      "schema": "9690721c.create-schema.json",
+      "schema": "9c925654.create-schema.json",
       "title": "Default",
       "tools": "7ba23085.create-tools.json"
     }

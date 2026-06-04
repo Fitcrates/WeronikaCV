@@ -11,6 +11,15 @@ export interface ContactInfo {
   phone: string;
 }
 
+export interface AboutImage {
+  alt: string;
+  edit?: string;
+  height?: number;
+  lqip?: string;
+  src: string;
+  width?: number;
+}
+
 export interface SiteSettings {
   titleEdit?: string;
   descriptionEdit?: string;
@@ -21,6 +30,8 @@ export interface SiteSettings {
   projectsTitleEdit?: string;
   aboutTitleEdit?: string;
   aboutContentEdits?: (string | undefined)[];
+  aboutImageEdit?: string;
+  aboutImageAltEdit?: string;
   cvTitleEdit?: string;
   cvContentEdits?: (string | undefined)[];
   title: string;
@@ -32,6 +43,7 @@ export interface SiteSettings {
   contact: ContactInfo;
   aboutTitle: string;
   aboutContent: string[];
+  aboutImage?: AboutImage;
   cvTitle: string;
   cvContent: string[];
   cvFileUrl?: string;
@@ -52,6 +64,19 @@ interface SanitySiteSettings {
   contactPhone?: string;
   aboutTitle?: string;
   aboutContent?: string[];
+  aboutImage?: {
+    asset?: {
+      url?: string;
+      metadata?: {
+        dimensions?: {
+          height?: number;
+          width?: number;
+        };
+        lqip?: string;
+      };
+    };
+  };
+  aboutImageAlt?: string;
   cvTitle?: string;
   cvContent?: string[];
   cvFileUrl?: string;
@@ -120,6 +145,16 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
       contactPhone,
       aboutTitle,
       aboutContent,
+      aboutImage{
+        asset->{
+          url,
+          metadata {
+            dimensions,
+            lqip
+          }
+        }
+      },
+      aboutImageAlt,
       cvTitle,
       cvContent,
       "cvFileUrl": cvFile.asset->url,
@@ -151,6 +186,8 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
         projectsTitleEdit: createSiteSettingsEdit(settings, "projectsTitle"),
         aboutTitleEdit: createSiteSettingsEdit(settings, "aboutTitle"),
         aboutContentEdits: createArrayEditAttributes(settings, "aboutContent", aboutContent),
+        aboutImageEdit: createSiteSettingsEdit(settings, "aboutImage"),
+        aboutImageAltEdit: createSiteSettingsEdit(settings, "aboutImageAlt"),
         cvTitleEdit: createSiteSettingsEdit(settings, "cvTitle"),
         cvContentEdits: createArrayEditAttributes(settings, "cvContent", cvContent),
         title: settings.title || hardcodedSiteSettings.title,
@@ -169,6 +206,16 @@ export async function getSiteSettings(preview = false): Promise<SiteSettings> {
         },
         aboutTitle: settings.aboutTitle || hardcodedSiteSettings.aboutTitle,
         aboutContent,
+        aboutImage: settings.aboutImage?.asset?.url
+          ? {
+              alt: settings.aboutImageAlt || settings.contactName || hardcodedSiteSettings.contact.name,
+              edit: createSiteSettingsEdit(settings, "aboutImage"),
+              height: settings.aboutImage.asset.metadata?.dimensions?.height,
+              lqip: settings.aboutImage.asset.metadata?.lqip,
+              src: settings.aboutImage.asset.url,
+              width: settings.aboutImage.asset.metadata?.dimensions?.width,
+            }
+          : undefined,
         cvTitle: settings.cvTitle || hardcodedSiteSettings.cvTitle,
         cvContent,
         cvFileUrl: settings.cvFileUrl,
